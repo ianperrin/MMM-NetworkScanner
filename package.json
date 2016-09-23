@@ -1,0 +1,27 @@
+{
+  "name": "MMM-NetworkScanner",
+  "version": "0.0.1",
+  "description": "A module for MagicMirror which determines the status of devices on the network based on their MAC address",
+  "main": "MMM-NetworkScanner.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ianperrin/MMM-NetworkScanner.git"
+  },
+  "keywords": [
+    "MagicMirror",
+    "Network",
+    "Scanner"
+  ],
+  "author": "Ian Perrin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ianperrin/MMM-NetworkScanner/issues"
+  },
+  "homepage": "https://github.com/ianperrin/MMM-NetworkScanner#readme",
+  "dependencies": {
+    "sudo": "^1.0.3"
+  }
+}
