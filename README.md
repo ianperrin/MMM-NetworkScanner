@@ -60,12 +60,12 @@ Scan every 5 seconds and only display the specified devices whether they are onl
                     { macAddress: "1a:1b:1c:1a:1b:1c", name: "Server", icon: "server"},
                     { macAddress: "2a:2b:2c:2a:2b:2c", name: "Desktop", icon: "desktop"},
                     { macAddress: "3a:3b:3c:3a:3b:3c", name: "Laptop", icon: "laptop"},
-                    { macAddress: "4a:4b:4c:4a:4b:4c", name: "Laptop", icon: "laptop"},
+                    { macAddress: "4a:4b:4c:4a:4b:4c", name: "Mobile", icon: "mobile"},
                 ],
-            showUnknown: false;
-            showOffline: true;
-            keepAlive: 300;
-            updateInterval: 5;
+            showUnknown: false,
+            showOffline: true,
+            keepAlive: 300,
+            updateInterval: 5
         }        
     },
 ````
