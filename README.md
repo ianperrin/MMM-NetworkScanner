@@ -1,4 +1,4 @@
-# MMM-ModuleScheduler
+# MMM-NetworkScanner
 A module for MagicMirror which determines the status of devices on the network based on their MAC address.
 
 ## Installation
