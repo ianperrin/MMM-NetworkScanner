@@ -15,11 +15,16 @@
         showOffline: true,              // shows devices specified in the 'devices' option even when offline
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
         updateInterval: 10,             // how often (in seconds) the module should scan the network
+        residentList: { residents: ['Me'], 
+                        homeNotification: 'MONITOR', payload: 'OFF',
+                        outNotification: 'MONITOR', payload: 'OFF', 
+                       }// Command for entering
     },
 
     // Subclass start method.
     start: function() {
         Log.info("Starting module: " + this.name);
+        this.occupied = true;
         moment.locale(config.language);
         this.scanNetwork();
     },
@@ -88,6 +93,58 @@
 
                 return stringA.localeCompare(stringB);
             });
+
+
+         
+
+            // bjn send updates if no residents are home
+            // Send notification if user status has changed
+            if (this.config.residentList.residents.length > 0) {
+//               console.log("There is a residents list");
+               var updatedOccupied = false;
+               var residentsList = this.config.residentList
+//               for (var i=0; i < residentsList.residents.length; i++) {}
+//               console.log(residentsList.residents)
+//               console.log("People currently home:");
+//               console.log(this.networkDevices);
+
+               Array.prototype.contains = function(element){
+                  return this.indexOf(element) > -1;
+               };
+
+               var anyoneHome = 0;
+
+               for (var i=0; i<this.networkDevices.length; i++) {
+                  device = this.networkDevices[i];
+//                  console.log(device)
+                  var resident = residentsList.residents.contains(device.name);
+//                  console.log("Device found in list of residents");
+//                  console.log(device.name, " is a resident: ", resident);
+                  if (resident) {
+                     anyoneHome = anyoneHome + device.online;
+                  };
+               }
+
+               console.log("# people home: ",anyoneHome)
+
+               if (anyoneHome > 0) {
+//                  console.log("Someone is home")
+                  if (this.occupied==false) {
+                     console.log("Someone has come home")
+                     this.occupied=true;
+                  };
+               } else {
+//                  console.log("No residents are home")
+                  if (this.occupied==true) {
+                     console.log("Everyone has left home")
+                     this.occupied=false;
+                  };
+               };
+
+      
+                  
+            };
+               
 
             this.updateDom();
         }
@@ -166,6 +223,11 @@
         } else {
             return null;
         }
+    },
+   
+    sendNotifications: function() {
+      console.log(this.networkDevices)
     }
+
 
 });
