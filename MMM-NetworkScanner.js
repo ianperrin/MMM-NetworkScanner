@@ -16,8 +16,8 @@
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
         updateInterval: 10,             // how often (in seconds) the module should scan the network
         residentList: { residents: ['Me'], 
-                        homeNotification: 'MONITOR', payload: 'OFF',
-                        outNotification: 'MONITOR', payload: 'OFF', 
+                        home: {notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}},
+                        out:  {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}}, 
                        }// Command for entering
     },
 
@@ -131,12 +131,16 @@
 //                  console.log("Someone is home")
                   if (this.occupied==false) {
                      console.log("Someone has come home")
+                     var command = residentsList.home;
+                     this.sendNotification(command.notification, command.payload);
                      this.occupied=true;
                   };
                } else {
 //                  console.log("No residents are home")
                   if (this.occupied==true) {
-                     console.log("Everyone has left home")
+                     console.log("Everyone has left home");
+                     var command = residentsList.out;
+                     this.sendNotification(command.notification, command.payload);
                      this.occupied=false;
                   };
                };
