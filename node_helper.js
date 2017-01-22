@@ -21,12 +21,12 @@ module.exports = NodeHelper.create({
 
         if (notification === "SCAN_NETWORK") {
             this.config = payload;
-            this.scanNetwork();
+            this.scanNetworkMAC();
             return true;
         }
     },
 
-    scanNetwork: function() {
+    scanNetworkMAC: function() {
         console.log(this.name + " is scanning for mac addresses");
 
         var self = this;
@@ -66,5 +66,13 @@ module.exports = NodeHelper.create({
             self.sendSocketNotification('MAC_ADDRESSES', macAddresses);
         });
 
-    }
+
+
+    },
+
+   scanNetworkIP: function() {
+      console.log(this.name + " is scanning for ip addresses");
+      
+      var self = this;
+   },
 });
