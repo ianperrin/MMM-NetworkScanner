@@ -67,23 +67,27 @@
             if (this.config.showOffline) {
                 for (var d = 0; d < this.config.devices.length; d++) {
                     var device = this.config.devices[d];
+         
+                    // Make sure we are using a device with a mac address
+                    if ("macAddress" in device) {
 
-                    for(var n = 0; n < this.networkDevices.length; n++){
-                        if( this.networkDevices[n].macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
-                            n = -1;
-                            break;
-                        }
-                    }
-
-                    if (n != -1) {
-                        if (device.lastSeen) {
-                            device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
-                            Log.info (this.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
-                        } else {
-                            device.online = false;
-                        }
-                        this.networkDevices.push(device);
-                    }
+                       for(var n = 0; n < this.networkDevices.length; n++){
+                           if( this.networkDevices[n].macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
+                               n = -1;
+                               break;
+                           }
+                       }
+   
+                       if (n != -1) {
+                           if (device.lastSeen) {
+                               device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
+                               Log.info (this.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
+                           } else {
+                               device.online = false;
+                           }
+                           this.networkDevices.push(device);
+                       }
+                   }
                 }
             }
 
@@ -207,9 +211,11 @@
         // Find first device with matching macAddress
         for (var i = 0; i < this.config.devices.length; i++) {
             var device = this.config.devices[i];
-            if (macAddress.toUpperCase() === device.macAddress.toUpperCase()){
-                return device;
-            }
+            if ("macAddress" in device) {
+               if (macAddress.toUpperCase() === device.macAddress.toUpperCase()){
+                   return device;
+               }
+           }
         }
 
         // Return macAddress (if showing unknown) or null
