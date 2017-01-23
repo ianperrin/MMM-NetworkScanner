@@ -6,8 +6,9 @@
  * MIT Licensed.
  */
 
-var NodeHelper = require("node_helper");
-var sudo = require("sudo");
+const NodeHelper = require("node_helper");
+const ping = require('ping')
+const sudo = require("sudo");
 
 
 module.exports = NodeHelper.create({
@@ -20,8 +21,9 @@ module.exports = NodeHelper.create({
         console.log(this.name + ' received ' + notification);
 
         if (notification === "SCAN_NETWORK") {
-            this.config = payload;
+            this.devices = payload;
             this.scanNetworkMAC();
+            this.scanNetworkIP(payload);
             return true;
         }
     },
@@ -70,9 +72,21 @@ module.exports = NodeHelper.create({
 
     },
 
-   scanNetworkIP: function() {
+   scanNetworkIP: function(payload) {
       console.log(this.name + " is scanning for ip addresses");
+
+      console.log("Recived payload: ",payload); 
+
+      var devices = payload;
+
+         devices.forEach( function(device) {
+            if ("ipAddress" in device) {
+               ping.sys.probe(device.ipAddress, function(isAlive) {
+                  console.log(device.name, isAlive);
+               });
+            };
+         });
+
       
-      var self = this;
    },
 });
