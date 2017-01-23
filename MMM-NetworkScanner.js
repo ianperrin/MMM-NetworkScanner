@@ -25,7 +25,25 @@
     // Subclass start method.
     start: function() {
         Log.info("Starting module: " + this.name);
+   
+        // variable for if anyone is home
         this.occupied = true;
+
+        // variable for list of IP addresses
+        this.IPAddresses = []
+        console.log("devices: ", this.config.devices);
+        for (var i=0; i<this.config.devices.length; i++) {
+           var device = this.config.devices[i];
+           console.log("Looking at: ", device);
+           if ("ipAddress" in device) {
+               this.IPAddresses.push(device);
+               console.log("found device: ", device.name);
+           };
+        };
+
+
+        console.log("IP ADDRESSES: ", this.IPAddresses);
+
         moment.locale(config.language);
         this.scanNetwork();
     },
@@ -47,6 +65,13 @@
         if (notification === 'IP_ADDRESS') {
             console.log("recived the following IP_ADDRESS information:")
             console.log(payload);
+//            console.log("Network devices:");
+//            console.log(this.networkDevices);
+            console.log("IP Adresses:");
+            console.log(this.IPAddresses);
+
+            
+
         };
 
         if (notification === 'MAC_ADDRESSES')
