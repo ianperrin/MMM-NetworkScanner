@@ -65,6 +65,8 @@ module.exports = NodeHelper.create({
                 }
             }
 
+            console.log("MAC_ADDRESSES", macAddresses);
+
             self.sendSocketNotification('MAC_ADDRESSES', macAddresses);
         });
 
@@ -79,16 +81,28 @@ module.exports = NodeHelper.create({
       console.log("Recived payload: ",payload); 
 
       var devices = payload;
+      var deviceList = []
 
+      function updateIPAddresses(devices) {
          devices.forEach( function(device) {
             if ("ipAddress" in device) {
                ping.sys.probe(device.ipAddress, function(isAlive) {
                   var deviceStatus = {name: device.name, online:isAlive};
                   console.log(deviceStatus);
+                  deviceList.push(deviceStatus);
                   self.sendSocketNotification("IP_ADDRESS", deviceStatus);
                });
             };
          });
+      }
+
+//      function printDevices(deviceList) {
+//         console.log("deviceList: ",deviceList); 
+//      };
+
+      updateIPAddresses(devices);
+   
+//         callback(deviceList);
 
       
    },
