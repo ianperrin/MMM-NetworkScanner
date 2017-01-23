@@ -73,6 +73,7 @@ module.exports = NodeHelper.create({
     },
 
    scanNetworkIP: function(payload) {
+      var self = this;
       console.log(this.name + " is scanning for ip addresses");
 
       console.log("Recived payload: ",payload); 
@@ -82,7 +83,9 @@ module.exports = NodeHelper.create({
          devices.forEach( function(device) {
             if ("ipAddress" in device) {
                ping.sys.probe(device.ipAddress, function(isAlive) {
-                  console.log(device.name, isAlive);
+                  var deviceStatus = {name: device.name, online:isAlive};
+                  console.log(deviceStatus);
+                  self.sendSocketNotification("IP_ADDRESS", deviceStatus);
                });
             };
          });
