@@ -63,13 +63,25 @@
         Log.info(this.name + " received a notification: " + notification);
 
         if (notification === 'IP_ADDRESS') {
-            console.log("recived the following IP_ADDRESS information:")
-            console.log(payload);
+//            console.log("recived the following IP_ADDRESS information:")
+//            console.log(payload);
 //            console.log("Network devices:");
 //            console.log(this.networkDevices);
-            console.log("IP Adresses:");
-            console.log(this.IPAddresses);
+//            console.log(this.IPAddresses);
 
+            for (var i=0; i < this.config.devices.length; i++) {
+               var device = this.config.devices[i];
+               if ("ipAddress" in device) {
+                  if (payload.name === device.name) {
+//                     console.log("Found the status of ", device.name);
+                     device.online = payload.online;
+                  };
+               };
+
+            };
+
+            console.log("IP Adresses:");
+            console.log(this.config.devices);
             
 
         };
@@ -80,6 +92,7 @@
             if (JSON.stringify(this.networkDevices) === JSON.stringify(payload))  {
                 return;
             }
+
 
             // Build device status list
             this.networkDevices = [];
@@ -117,7 +130,10 @@
                            }
                            this.networkDevices.push(device);
                        }
+                   } else if ("ipAddress" in device) {
+                        this.networkDevices.push(device)
                    }
+                  
                 }
             }
 
