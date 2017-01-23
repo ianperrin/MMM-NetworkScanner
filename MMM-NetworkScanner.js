@@ -44,6 +44,11 @@
     socketNotificationReceived: function(notification, payload) {
         Log.info(this.name + " received a notification: " + notification);
 
+        if (notification === 'IP_ADDRESS') {
+            console.log("recived the following IP_ADDRESS information:")
+            console.log(payload);
+        };
+
         if (notification === 'MAC_ADDRESSES')
         {
             // No action if data is the same
