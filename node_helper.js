@@ -65,7 +65,7 @@ module.exports = NodeHelper.create({
                 }
             }
 
-            console.log("MAC_ADDRESSES", macAddresses);
+//            console.log("MAC_ADDRESSES", macAddresses);
 
             self.sendSocketNotification('MAC_ADDRESSES', macAddresses);
         });
@@ -78,7 +78,7 @@ module.exports = NodeHelper.create({
       var self = this;
       console.log(this.name + " is scanning for ip addresses");
 
-      console.log("Recived payload: ",payload); 
+//      console.log("Recived payload: ",payload); 
 
       var devices = payload;
       var deviceList = []
@@ -88,7 +88,7 @@ module.exports = NodeHelper.create({
             if ("ipAddress" in device) {
                ping.sys.probe(device.ipAddress, function(isAlive) {
                   var deviceStatus = {name: device.name, online:isAlive};
-                  console.log(deviceStatus);
+//                  console.log(deviceStatus);
                   deviceList.push(deviceStatus);
                   self.sendSocketNotification("IP_ADDRESS", deviceStatus);
                });
