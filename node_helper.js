@@ -83,7 +83,7 @@ module.exports = NodeHelper.create({
       var self = this;
       console.log(this.name + " is scanning for ip addresses");
 
-//      console.log("Recived payload: ",payload); 
+      console.log("Recived payload: ",payload); 
 
       var devices = payload;
       var deviceList = [];
