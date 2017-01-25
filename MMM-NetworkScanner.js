@@ -28,12 +28,12 @@ Module.register("MMM-NetworkScanner", {
 
     // Subclass start method.
     start: function () {
+        var self = this;
         Log.info("Starting module: " + this.name);
 
         // variable for if anyone is home
         this.occupied = true;
 
-        var self = this
         // variable for list of IP addresses
         self.IPAddresses = [];
         this.config.devices.forEach(function (device) {
@@ -150,9 +150,8 @@ Module.register("MMM-NetworkScanner", {
 
             // Send notification if user status has changed
             if (this.config.residents.length > 0) {
-
-                var self = this;
                 var anyoneHome, command;
+//                self = this;
                 anyoneHome = 0;
 
 
@@ -202,10 +201,10 @@ Module.register("MMM-NetworkScanner", {
     // Override dom generator.
     getDom: function () {
         //Log.info(this.name + " is updating the DOM");
-        var wrapper, deviceList, icon, deviceItem, deviceOnline;
+        var wrapper, deviceList, icon, deviceItem, deviceOnline, self;
         wrapper = document.createElement("div");
 
-        var self = this;
+        self = this;
 
 
         wrapper.classList.add("small");
@@ -272,8 +271,8 @@ Module.register("MMM-NetworkScanner", {
 
 
     scanNetwork: function () {
-        var devices;
-        var self = this;
+        var devices, self;
+        self = this;
         devices = this.config.devices;
         this.sendSocketNotification('SCAN_NETWORK', devices);
         setInterval(function () {
