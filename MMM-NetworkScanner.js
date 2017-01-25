@@ -20,7 +20,7 @@ Module.register("MMM-NetworkScanner", {
         updateInterval: 30,             // how often (in seconds) the module should scan the network
 
         residents: [],
-//        residents: ["Ben"],
+        residents: ["Ben"],
         occupiedCMD: {notification: 'TEST', payload: {action: 'occupiedCMD'}},
         vacantCMD:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
         debug: true,
@@ -65,8 +65,8 @@ Module.register("MMM-NetworkScanner", {
 
     // Subclass socketNotificationReceived method.
     socketNotificationReceived: function (notification, payload) {
-        Log.info(this.name + " received a notification: " + notification);
-        console.log("with payload: " + payload);
+//        Log.info(this.name + " received a notification: " + notification);
+//        console.log("with payload: " + payload);
 
         var self = this;
 
@@ -110,7 +110,7 @@ Module.register("MMM-NetworkScanner", {
 
             // Add offline known devices
             if (self.config.showOffline) {
-                console.log("Offline MAC devices: ");
+                console.log("Adding offline devices: ");
                 console.log(self.config.devices);
 
                 self.config.devices.forEach(function (device) {
@@ -138,7 +138,9 @@ Module.register("MMM-NetworkScanner", {
 
                     } else if (device.hasOwnProperty("ipAddress")) {
                      // Keep the device alive incase of temporary loss
+                        console.log("Looking at device: " + device);
                         if (!device.online) {
+                            console.log("device is not online");
                             if (device.lastSeen) {
                                 device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
                                 Log.info(this.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
@@ -169,15 +171,16 @@ Module.register("MMM-NetworkScanner", {
                 anyoneHome = 0;
 
 
-                Array.prototype.contains = function (element) {
-                    return this.indexOf(element) > -1;
-                };
+//              Array.prototype.contains = function (element) {
+//                  return this.indexOf(element) > -1;
+//              };
 
 
                 this.networkDevices.forEach(function (device) {
 //                for (var i=0; i<this.networkDevices.length; i++) {
 //                    device = this.networkDevices[i];
-                    if (self.config.residents.contains(device.name)) {
+                    if (self.config.residents.indexOf(device.name) >= 0) {
+//                  if (self.config.residents.contains(device.name)) {
                         anyoneHome = anyoneHome + device.online;
                     }
                 });
