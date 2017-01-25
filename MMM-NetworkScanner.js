@@ -129,12 +129,14 @@ Module.register("MMM-NetworkScanner", {
 //                            var networkDevice = networkDevices[n];
 
                             // Find if the device is a known device
-                            if (networkDevice.macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
-                                if (device.lastSeen) {
-                                    device.online = (moment().diff(device.lastSeen, 'seconds') < self.config.keepAlive);
-                                    Log.info(self.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
-                                } else {
-                                    device.online = false;
+                            if (networkDevice.hasOwnProperty("macAddress")) {
+                                if (networkDevice.macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
+                                    if (device.lastSeen) {
+                                        device.online = (moment().diff(device.lastSeen, 'seconds') < self.config.keepAlive);
+                                        Log.info(self.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
+                                    } else {
+                                        device.online = false;
+                                    }
                                 }
                             }
                             
