@@ -16,8 +16,8 @@ Module.register("MMM-NetworkScanner", {
         devices: [],                    // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
         showUnknown: true,              // shows devices found on the network even if not specified in the 'devices' option 
         showOffline: true,              // shows devices specified in the 'devices' option even when offline
-        keepAlive: 30,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
-        updateInterval: 10,             // how often (in seconds) the module should scan the network
+        keepAlive: 300,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
+        updateInterval: 30,             // how often (in seconds) the module should scan the network
 
         residents: [],
 //        residents: ["Ben"],
@@ -33,13 +33,14 @@ Module.register("MMM-NetworkScanner", {
         // variable for if anyone is home
         this.occupied = true;
 
+        var self = this
         // variable for list of IP addresses
-        this.IPAddresses = [];
+        self.IPAddresses = [];
         this.config.devices.forEach(function (device) {
 //        for (var i=0; i<this.config.devices.length; i++) {
 //           var device = this.config.devices[i];
             if (device.hasOwnProperty("ipAddress")) {
-                this.IPAddresses.push(device);
+                self.IPAddresses.push(device);
             }
         });
 
@@ -130,8 +131,8 @@ Module.register("MMM-NetworkScanner", {
                             } else {
                                 device.online = false;
                             }
-                            this.networkDevices.push(device);
                         }
+                        self.networkDevices.push(device);
                     }
                 });
             }
@@ -204,6 +205,8 @@ Module.register("MMM-NetworkScanner", {
         var wrapper, deviceList, icon, deviceItem, deviceOnline;
         wrapper = document.createElement("div");
 
+        var self = this;
+
 
         wrapper.classList.add("small");
 
@@ -216,7 +219,10 @@ Module.register("MMM-NetworkScanner", {
         // Display device status
         deviceList = document.createElement("ul");
         deviceList.classList.add("fa-ul");
-        this.networkDevices.forEach(function (device) {
+        console.log("Netowkr devices:");
+        console.log(self.networkDevices);
+        console.log(this.networkDevices);
+        self.networkDevices.forEach(function (device) {
 //        for (var i = 0; i < this.networkDevices.length; i++) {
 //            var device = this.networkDevices[i];
             if (device) {
