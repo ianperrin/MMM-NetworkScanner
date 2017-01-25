@@ -77,7 +77,7 @@ Module.register("MMM-NetworkScanner", {
 //               var device = this.config.devices[i];
                 if (device.hasOwnProperty("ipAddress")) {
                     if (payload.name === device.name) {
-//                        device.online = payload.online;
+                        device.online = payload.online;
                         if (payload.online) {
                            device.lastSeen = moment();
                         }
