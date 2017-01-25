@@ -26,6 +26,11 @@ module.exports = NodeHelper.create({
             this.scanNetworkIP(payload);
             return true;
         }
+
+//        if (notification === "TEST") {
+//         console.log("Recived a test notification with the following payload:");
+//         console.log(payload);
+//        }
     },
 
     scanNetworkMAC: function() {
@@ -81,7 +86,7 @@ module.exports = NodeHelper.create({
 //      console.log("Recived payload: ",payload); 
 
       var devices = payload;
-      var deviceList = []
+      var deviceList = [];
 
       function updateIPAddresses(devices) {
          devices.forEach( function(device) {
