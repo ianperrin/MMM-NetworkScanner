@@ -16,14 +16,10 @@ Module.register("MMM-NetworkScanner",{
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
         updateInterval: 10,             // how often (in seconds) the module should scan the network
 
-        residents: ["Me", "Ben"],
 //        residents: [],
-//        occupiedCMD: {notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}},
-//        vacantCMD:   {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}},
-
+        residents: ["Ben"],
         occupiedCMD: {notification: 'TEST', payload: {action: 'occupiedCMD'}},
         vacantCMD:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
-
         debug: true,
     },
 
@@ -36,18 +32,12 @@ Module.register("MMM-NetworkScanner",{
 
         // variable for list of IP addresses
         this.IPAddresses = []
-//        console.log("devices: ", this.config.devices);
         for (var i=0; i<this.config.devices.length; i++) {
            var device = this.config.devices[i];
-//           console.log("Looking at: ", device);
            if ("ipAddress" in device) {
                this.IPAddresses.push(device);
-//               console.log("found device: ", device.name);
            };
         };
-
-
-//        console.log("IP ADDRESSES: ", this.IPAddresses);
 
         moment.locale(config.language);
         this.scanNetwork();
@@ -63,45 +53,28 @@ Module.register("MMM-NetworkScanner",{
         return ["moment.js"];
     },
 
-//   notificationReceived: function(notification, payload, sender) {
-//      Log.log(this.name + " received a module notification: " + notification );
-//      return;
-//   },
-
     // Subclass socketNotificationReceived method.
     socketNotificationReceived: function(notification, payload) {
         Log.info(this.name + " received a notification: " + notification);
 
         if (notification === 'IP_ADDRESS') {
-//            console.log("recived the following IP_ADDRESS information:")
-//            console.log(payload);
-//            console.log("Network devices:");
-//            console.log(this.networkDevices);
-//            console.log(this.IPAddresses);
 
             for (var i=0; i < this.config.devices.length; i++) {
                var device = this.config.devices[i];
                if ("ipAddress" in device) {
                   if (payload.name === device.name) {
-//                     console.log("Found the status of ", device.name);
                      device.online = payload.online;
+                     return;
                   };
                };
-
             };
-
-//            console.log("IP Adresses:");
-//            console.log(this.config.devices);
-            
-
         };
 
-        if (notification === 'MAC_ADDRESSES')
-        {
+        if (notification === 'MAC_ADDRESSES') {
             // No action if data is the same
             if (JSON.stringify(this.networkDevices) === JSON.stringify(payload))  {
                 return;
-            }
+            };
 
 
             // Build device status list
@@ -114,7 +87,7 @@ Module.register("MMM-NetworkScanner",{
                     device.lastSeen = moment();
                     this.networkDevices.push(device);
                 }
-            }
+            };
 
             // Add offline known devices
             if (this.config.showOffline) {
@@ -141,11 +114,19 @@ Module.register("MMM-NetworkScanner",{
                            this.networkDevices.push(device);
                        }
                    } else if ("ipAddress" in device) {
-                        this.networkDevices.push(device)
-                   }
-                  
-                }
-            }
+                     // Keep the device alive incase of temporary loss
+//                        if (!device.online) {
+//                           if (device.lastSeen) {
+//                               device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
+//                               Log.info (this.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
+//                           } else {
+//                              device.online = false;
+//                           }
+                           this.networkDevices.push(device);
+//                       }
+                   };
+                };
+            };
 
             // Sort list by known device names, then unknown device mac addresses
             this.networkDevices.sort(function(a, b) {
@@ -176,8 +157,8 @@ Module.register("MMM-NetworkScanner",{
                   var resident = residents.contains(device.name);
                   if (resident) {
                      anyoneHome = anyoneHome + device.online;
-                  };
-               }
+                  }
+               };
 
                console.log("# people home: ",anyoneHome);
                console.log("Was occupied? ", this.occupied);
@@ -193,12 +174,10 @@ Module.register("MMM-NetworkScanner",{
                   if (this.occupied==true) {
                      console.log("Everyone has left home");
                      var command = this.config.vacantCMD;
-                     console.log(command.notification)
-                     console.log(command.payload)
                      this.sendNotification(command.notification, command.payload);
                      this.occupied=false;
-                  };
-               };
+                  }
+               }
 
       
                   
@@ -206,8 +185,8 @@ Module.register("MMM-NetworkScanner",{
                
 
             this.updateDom();
-        }
-      return;
+            return;
+        };
     }, 
 
     // Override dom generator.
@@ -266,7 +245,7 @@ Module.register("MMM-NetworkScanner",{
         setInterval(function() {
             self.sendSocketNotification('SCAN_NETWORK', devices);
         }, this.config.updateInterval * 1000);
-      return;
+        return;
     },
 
     getDeviceByMacAddress: function(macAddress) {
@@ -289,6 +268,6 @@ Module.register("MMM-NetworkScanner",{
         }
     },
 
-
-
 });
+
+
