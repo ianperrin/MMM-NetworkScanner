@@ -77,7 +77,10 @@ Module.register("MMM-NetworkScanner", {
 //               var device = this.config.devices[i];
                 if (device.hasOwnProperty("ipAddress")) {
                     if (payload.name === device.name) {
-                        device.online = payload.online;
+//                        device.online = payload.online;
+                        if (payload.online) {
+                           device.lastSeen = moment();
+                        }
                         return;
                     }
                 }
@@ -111,12 +114,13 @@ Module.register("MMM-NetworkScanner", {
             // Add offline known devices
             if (self.config.showOffline) {
                 console.log("Adding offline devices: ");
-                console.log(self.config.devices);
 
                 self.config.devices.forEach(function (device) {
 //                for (var d = 0; d < this.config.devices.length; d++) {
 //                    var device = this.config.devices[d];
 
+//                    console.log("Looking at device: ");
+//                    console.log(device);
                     // Make sure we are using a device with a mac address
                     if (device.hasOwnProperty("macAddress")) {
 
@@ -127,8 +131,8 @@ Module.register("MMM-NetworkScanner", {
                             // Find if the device is a known device
                             if (networkDevice.macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
                                 if (device.lastSeen) {
-                                    device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
-                                    Log.info(this.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
+                                    device.online = (moment().diff(device.lastSeen, 'seconds') < self.config.keepAlive);
+                                    Log.info(self.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
                                 } else {
                                     device.online = false;
                                 }
@@ -138,12 +142,12 @@ Module.register("MMM-NetworkScanner", {
 
                     } else if (device.hasOwnProperty("ipAddress")) {
                      // Keep the device alive incase of temporary loss
-                        console.log("Looking at device: " + device);
+
                         if (!device.online) {
                             console.log("device is not online");
                             if (device.lastSeen) {
-                                device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
-                                Log.info(this.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
+                                device.online = (moment().diff(device.lastSeen, 'seconds') < self.config.keepAlive);
+                                Log.info(self.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
                             } else {
                                 device.online = false;
                             }
@@ -235,9 +239,9 @@ Module.register("MMM-NetworkScanner", {
         // Display device status
         deviceList = document.createElement("ul");
         deviceList.classList.add("fa-ul");
-        console.log("Network devices:");
-        console.log(self.networkDevices);
-        console.log(this.networkDevices);
+//        console.log("Network devices:");
+//        console.log(self.networkDevices);
+//        console.log(this.networkDevices);
         self.networkDevices.forEach(function (device) {
 //        for (var i = 0; i < this.networkDevices.length; i++) {
 //            var device = this.networkDevices[i];
