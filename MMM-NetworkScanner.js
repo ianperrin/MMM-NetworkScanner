@@ -6,7 +6,7 @@
  * MIT Licensed.
  */
 
- Module.register("MMM-NetworkScanner",{
+Module.register("MMM-NetworkScanner",{
 
      // Default module config.
     defaults: {
@@ -15,17 +15,14 @@
         showOffline: true,              // shows devices specified in the 'devices' option even when offline
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
         updateInterval: 10,             // how often (in seconds) the module should scan the network
-//        residentList: { residents: [], 
-//                        arrive: 
-//                        dapart:   
-//                       },// Command for entering
 
-        residents: ["Ben"],
+        residents: ["Me", "Ben"],
+//        residents: [],
 //        occupiedCMD: {notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}},
-//        vacantCDM:   {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}},
+//        vacantCMD:   {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}},
 
         occupiedCMD: {notification: 'TEST', payload: {action: 'occupiedCMD'}},
-        vacantCDM:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
+        vacantCMD:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
 
         debug: true,
     },
@@ -39,18 +36,18 @@
 
         // variable for list of IP addresses
         this.IPAddresses = []
-        console.log("devices: ", this.config.devices);
+//        console.log("devices: ", this.config.devices);
         for (var i=0; i<this.config.devices.length; i++) {
            var device = this.config.devices[i];
-           console.log("Looking at: ", device);
+//           console.log("Looking at: ", device);
            if ("ipAddress" in device) {
                this.IPAddresses.push(device);
-               console.log("found device: ", device.name);
+//               console.log("found device: ", device.name);
            };
         };
 
 
-        console.log("IP ADDRESSES: ", this.IPAddresses);
+//        console.log("IP ADDRESSES: ", this.IPAddresses);
 
         moment.locale(config.language);
         this.scanNetwork();
@@ -65,6 +62,11 @@
     getScripts: function() {
         return ["moment.js"];
     },
+
+//   notificationReceived: function(notification, payload, sender) {
+//      Log.log(this.name + " received a module notification: " + notification );
+//      return;
+//   },
 
     // Subclass socketNotificationReceived method.
     socketNotificationReceived: function(notification, payload) {
@@ -88,8 +90,8 @@
 
             };
 
-            console.log("IP Adresses:");
-            console.log(this.config.devices);
+//            console.log("IP Adresses:");
+//            console.log(this.config.devices);
             
 
         };
@@ -158,8 +160,10 @@
 
             // Send notification if user status has changed
             if (this.config.residents.length > 0) {
+
+               var self = this;
                var updatedOccupied = false;
-               var residents = this.config.residents
+               var residents = this.config.residents;
 
                Array.prototype.contains = function(element){
                   return this.indexOf(element) > -1;
@@ -175,19 +179,22 @@
                   };
                }
 
-               console.log("# people home: ",anyoneHome)
+               console.log("# people home: ",anyoneHome);
+               console.log("Was occupied? ", this.occupied);
 
                if (anyoneHome > 0) {
-                  if (this.occupiedCMD==false) {
-                     console.log("Someone has come home")
-                     var command = this.config.ocupiedCMD;
+                  if (this.occupied==false) {
+                     console.log("Someone has come home");
+                     var command = this.config.occupiedCMD;
                      this.sendNotification(command.notification, command.payload);
                      this.occupied=true;
-                  };
+                  }
                } else {
                   if (this.occupied==true) {
                      console.log("Everyone has left home");
                      var command = this.config.vacantCMD;
+                     console.log(command.notification)
+                     console.log(command.payload)
                      this.sendNotification(command.notification, command.payload);
                      this.occupied=false;
                   };
@@ -200,6 +207,7 @@
 
             this.updateDom();
         }
+      return;
     }, 
 
     // Override dom generator.
@@ -258,6 +266,7 @@
         setInterval(function() {
             self.sendSocketNotification('SCAN_NETWORK', devices);
         }, this.config.updateInterval * 1000);
+      return;
     },
 
     getDeviceByMacAddress: function(macAddress) {
@@ -279,10 +288,7 @@
             return null;
         }
     },
-   
-    sendNotifications: function() {
-      console.log(this.networkDevices)
-    }
+
 
 
 });
