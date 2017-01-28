@@ -41,8 +41,6 @@ Module.register("MMM-NetworkScanner", {
         // variable for list of IP addresses
         self.IPAddresses = [];
         this.config.devices.forEach(function (device) {
-//        for (var i=0; i<this.config.devices.length; i++) {
-//           var device = this.config.devices[i];
             if (device.hasOwnProperty("ipAddress")) {
                 self.IPAddresses.push(device);
             }
@@ -64,16 +62,13 @@ Module.register("MMM-NetworkScanner", {
 
     // Subclass socketNotificationReceived method.
     socketNotificationReceived: function (notification, payload) {
-//        Log.info(this.name + " received a notification: " + notification);
-//        console.log("with payload: " + payload);
+        Log.info(this.name + " received a notification: " + notification);
 
         var self = this;
 
         if (notification === 'IP_ADDRESS') {
 
             this.config.devices.forEach(function (device) {
-//            for (var i=0; i < this.config.devices.length; i++) {
-//               var device = this.config.devices[i];
                 if (device.hasOwnProperty("ipAddress")) {
                     if (payload.name === device.name) {
                         device.online = payload.online;
@@ -98,8 +93,6 @@ Module.register("MMM-NetworkScanner", {
             self.networkDevices = [];
 
             payload.forEach(function (item) {
-//            for (var i = 0; i < payload.length - 1; i++) {
-//                var item = payload[i]
                 var device = self.getDeviceByMacAddress(item);
                 console.log("devices: " + device);
                 if (device) {
@@ -115,17 +108,10 @@ Module.register("MMM-NetworkScanner", {
                 console.log("Adding offline devices: ");
 
                 self.config.devices.forEach(function (device) {
-//                for (var d = 0; d < this.config.devices.length; d++) {
-//                    var device = this.config.devices[d];
 
-//                    console.log("Looking at device: ");
-//                    console.log(device);
                     // Make sure we are using a device with a mac address
                     if (device.hasOwnProperty("macAddress")) {
-
                         self.networkDevices.forEach(function (networkDevice) {
-//                        for (var n = 0; n < this.networkDevices.length; n++){
-//                            var networkDevice = networkDevices[n];
 
                             // Find if the device is a known device
                             if (networkDevice.hasOwnProperty("macAddress")) {
@@ -175,17 +161,8 @@ Module.register("MMM-NetworkScanner", {
 //                self = this;
                 anyoneHome = 0;
 
-
-//              Array.prototype.contains = function (element) {
-//                  return this.indexOf(element) > -1;
-//              };
-
-
                 this.networkDevices.forEach(function (device) {
-//                for (var i=0; i<this.networkDevices.length; i++) {
-//                    device = this.networkDevices[i];
                     if (self.config.residents.indexOf(device.name) >= 0) {
-//                  if (self.config.residents.contains(device.name)) {
                         anyoneHome = anyoneHome + device.online;
                     }
                 });
@@ -222,7 +199,6 @@ Module.register("MMM-NetworkScanner", {
 
     // Override dom generator.
     getDom: function () {
-        //Log.info(this.name + " is updating the DOM");
         var wrapper, deviceList, icon, deviceItem, deviceOnline, self;
         wrapper = document.createElement("div");
 
@@ -240,12 +216,7 @@ Module.register("MMM-NetworkScanner", {
         // Display device status
         deviceList = document.createElement("ul");
         deviceList.classList.add("fa-ul");
-//        console.log("Network devices:");
-//        console.log(self.networkDevices);
-//        console.log(this.networkDevices);
         self.networkDevices.forEach(function (device) {
-//        for (var i = 0; i < this.networkDevices.length; i++) {
-//            var device = this.networkDevices[i];
             if (device) {
 
                 // Add device items if they don't exist.
@@ -309,8 +280,6 @@ Module.register("MMM-NetworkScanner", {
 
         // Find first device with matching macAddress
         self.config.devices.forEach(function (device) {
-//        for (var i = 0; i < this.config.devices.length; i++) {
-//            var device = this.config.devices[i];
             if (device.hasOwnProperty("macAddress")) {
                 if (macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
                     return device;
