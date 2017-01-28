@@ -14,16 +14,15 @@ Module.register("MMM-NetworkScanner", {
      // Default module config.
     defaults: {
         devices: [],                    // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
-        showUnknown: false,              // shows devices found on the network even if not specified in the 'devices' option 
+        showUnknown: true,              // shows devices found on the network even if not specified in the 'devices' option 
         showOffline: true,              // shows devices specified in the 'devices' option even when offline
-        keepAlive: 300,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
-        updateInterval: 30,             // how often (in seconds) the module should scan the network
+        keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
+        updateInterval: 10,             // how often (in seconds) the module should scan the network
 
         residents: [],
-        residents: ["Ben"],
         occupiedCMD: {notification: 'TEST', payload: {action: 'occupiedCMD'}},
         vacantCMD:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
-        debug: true,
+        debug: false,
     },
 
     // Subclass start method.
