@@ -86,6 +86,7 @@ To update the module to the latest version, use your terminal to go to your MMM-
 ````
 cd ~/MagicMirror/modules/MMM-NetworkScanner
 git pull
+npm install
 ```` 
 
 If you haven't changed the modules, this should work without any problems. 
