@@ -6,8 +6,9 @@
  * MIT Licensed.
  */
 
-var NodeHelper = require("node_helper");
-var sudo = require("sudo");
+const NodeHelper = require("node_helper");
+const ping = require('ping')
+const sudo = require("sudo");
 
 
 module.exports = NodeHelper.create({
@@ -20,13 +21,19 @@ module.exports = NodeHelper.create({
         console.log(this.name + ' received ' + notification);
 
         if (notification === "SCAN_NETWORK") {
-            this.config = payload;
-            this.scanNetwork();
+            this.devices = payload;
+            this.scanNetworkMAC();
+            this.scanNetworkIP(payload);
             return true;
         }
+
+//        if (notification === "TEST") {
+//         console.log("Recived a test notification with the following payload:");
+//         console.log(payload);
+//        }
     },
 
-    scanNetwork: function() {
+    scanNetworkMAC: function() {
         console.log(this.name + " is scanning for mac addresses");
 
         var self = this;
@@ -63,8 +70,45 @@ module.exports = NodeHelper.create({
                 }
             }
 
+//            console.log("MAC_ADDRESSES", macAddresses);
+
             self.sendSocketNotification('MAC_ADDRESSES', macAddresses);
         });
 
-    }
+
+
+    },
+
+   scanNetworkIP: function(payload) {
+      var self = this;
+      console.log(this.name + " is scanning for ip addresses");
+
+      console.log("Recived payload: ",payload); 
+
+      var devices = payload;
+      var deviceList = [];
+
+      function updateIPAddresses(devices) {
+         devices.forEach( function(device) {
+            if ("ipAddress" in device) {
+               ping.sys.probe(device.ipAddress, function(isAlive) {
+                  var deviceStatus = {name: device.name, online:isAlive};
+//                  console.log(deviceStatus);
+                  deviceList.push(deviceStatus);
+                  self.sendSocketNotification("IP_ADDRESS", deviceStatus);
+               });
+            };
+         });
+      }
+
+//      function printDevices(deviceList) {
+//         console.log("deviceList: ",deviceList); 
+//      };
+
+      updateIPAddresses(devices);
+   
+//         callback(deviceList);
+
+      
+   },
 });

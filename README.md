@@ -1,5 +1,5 @@
 # MMM-NetworkScanner
-A module for MagicMirror which determines the status of devices on the network based on their MAC address.
+A module for MagicMirror which determines the status of devices on the network based on their MAC address. It can also look up devices by IP addresses or hostnames. Static IP addresses work more consistently.
 
 ## Installation
 
@@ -48,6 +48,9 @@ Add the module to the modules array in the `config/config.js` file:
 | `showOffline` | true | shows devices specified in the `devices` option even when offline |
 | `keepAlive` | 180 | how long (in seconds) a device should be considered 'alive' since it was last found on the network |
 | `updateInterval` | 10 | how often (in seconds) the module should scan the network  |
+| `residents` | [] | names of devices that should be monitored if they are in |
+| `occupiedCMD` | `{notification: 'TEST', payload: {action: 'test-occupied'}}` | Notification to be sent when a resident returnes home e.g. `{notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}}` would turn the mirror on when a resedent returnes home. |
+| `vacantCMD` | `{notification: 'TEST', payload: {action: 'test-occupied'}}` | Notification to be sent when all residents have left home. |
 
 ### Example Config
 Scan every 5 seconds and only display the specified devices whether they are online or offline. Devices will be considered online for 5 mins after they are last seen:
@@ -57,15 +60,20 @@ Scan every 5 seconds and only display the specified devices whether they are onl
         position: 'top_left', 
         config: {
             devices: [
+                    { ipAddress: "github.com", name: "Github", icon: "globe"},
                     { macAddress: "1a:1b:1c:1a:1b:1c", name: "Server", icon: "server"},
                     { macAddress: "2a:2b:2c:2a:2b:2c", name: "Desktop", icon: "desktop"},
-                    { macAddress: "3a:3b:3c:3a:3b:3c", name: "Laptop", icon: "laptop"},
+                    { ipAddress: "10.1.1.10", name: "Laptop", icon: "laptop"},
                     { macAddress: "4a:4b:4c:4a:4b:4c", name: "Mobile", icon: "mobile"},
                 ],
             showUnknown: false,
             showOffline: true,
             keepAlive: 300,
             updateInterval: 5
+            residents: "Mobile",
+            occupiedCMD: {notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}},
+            vacantCMD  : {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}},
+
         }        
     },
 ````

@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/ianperrin/MMM-NetworkScanner#readme",
   "dependencies": {
-    "sudo": "^1.0.3"
+    "sudo": "^1.0.3",
+    "ping": "^0.1.10"
   }
 }
