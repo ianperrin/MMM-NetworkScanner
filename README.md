@@ -24,7 +24,7 @@ Go to the modules folder:
 cd MMM-NetworkScanner
 ````
 
-Install the dependencies (`sudo`):
+Install the dependencies (`sudo`, `ping`):
 ````
 npm install
 ````
@@ -84,6 +84,7 @@ Scan every 5 seconds and only display the specified devices whether they are onl
 To update the module to the latest version, use your terminal to go to your MMM-NetworkScanner module folder and type the following command:
 
 ````
+cd ~/MagicMirror/modules/MMM-NetworkScanner
 git pull
 ```` 
 
