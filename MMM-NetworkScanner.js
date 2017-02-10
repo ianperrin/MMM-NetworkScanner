@@ -16,9 +16,10 @@ Module.register("MMM-NetworkScanner", {
         devices: [],                    // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
         showUnknown: true,              // shows devices found on the network even if not specified in the 'devices' option 
         showOffline: true,              // shows devices specified in the 'devices' option even when offline
+        showLastSeen: false,            // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
         updateInterval: 10,             // how often (in seconds) the module should scan the network
-
+         
         residents: [],
         occupiedCMD: {notification: 'TEST', payload: {action: 'occupiedCMD'}},
         vacantCMD:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
@@ -245,6 +246,11 @@ Module.register("MMM-NetworkScanner", {
 
                 // Name 
                 deviceItem.innerHTML += device.name;
+                 
+                // When last seen
+                if (self.config.showLastSeen && device.lastSeen) {
+                   deviceItem.innerHTML += " - last seen " + device.lastSeen.fromNow();
+                }
 
                 deviceList.appendChild(deviceItem);
 
