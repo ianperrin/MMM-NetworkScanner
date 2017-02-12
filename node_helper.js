@@ -7,9 +7,8 @@
  */
 
 const NodeHelper = require("node_helper");
-const ping = require('ping')
+const ping = require("ping");
 const sudo = require("sudo");
-
 
 module.exports = NodeHelper.create({
     start: function function_name () {
@@ -18,7 +17,7 @@ module.exports = NodeHelper.create({
 
     // Override socketNotificationReceived method.
     socketNotificationReceived: function(notification, payload) {
-        console.log(this.name + ' received ' + notification);
+        console.log(this.name + " received " + notification);
 
         if (notification === "SCAN_NETWORK") {
             this.devices = payload;
@@ -27,10 +26,6 @@ module.exports = NodeHelper.create({
             return true;
         }
 
-//        if (notification === "TEST") {
-//         console.log("Recived a test notification with the following payload:");
-//         console.log(payload);
-//        }
     },
 
     scanNetworkMAC: function() {
@@ -70,20 +65,14 @@ module.exports = NodeHelper.create({
                 }
             }
 
-//            console.log("MAC_ADDRESSES", macAddresses);
-
-            self.sendSocketNotification('MAC_ADDRESSES', macAddresses);
+            self.sendSocketNotification("MAC_ADDRESSES", macAddresses);
         });
-
-
 
     },
 
    scanNetworkIP: function(payload) {
       var self = this;
-      console.log(this.name + " is scanning for ip addresses");
-
-      console.log("Recived payload: ",payload); 
+      console.log(this.name + " is scanning for ip addresses", payload);
 
       var devices = payload;
       var deviceList = [];
@@ -93,22 +82,14 @@ module.exports = NodeHelper.create({
             if ("ipAddress" in device) {
                ping.sys.probe(device.ipAddress, function(isAlive) {
                   var deviceStatus = {name: device.name, online:isAlive};
-//                  console.log(deviceStatus);
                   deviceList.push(deviceStatus);
                   self.sendSocketNotification("IP_ADDRESS", deviceStatus);
                });
-            };
+            }
          });
       }
 
-//      function printDevices(deviceList) {
-//         console.log("deviceList: ",deviceList); 
-//      };
-
       updateIPAddresses(devices);
-   
-//         callback(deviceList);
-
       
    },
 });
