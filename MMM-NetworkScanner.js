@@ -90,23 +90,22 @@ Module.register("MMM-NetworkScanner", {
 
 
             // Build device status list
-//            var that = this;
             self.networkDevices = [];
 
             payload.forEach(function (item) {
                 var device = self.getDeviceByMacAddress(item);
-                console.log("devices: " + device);
                 if (device) {
+                    console.log(self.name + " is updating device status", device);
                     device.online = true;
                     device.lastSeen = moment();
                     self.networkDevices.push(device);
                 }
             });
-            console.log(self.networkDevices)
+            console.log(self.name, self.networkDevices);
 
             // Add offline known devices
             if (self.config.showOffline) {
-                console.log("Adding offline devices: ");
+                console.log(self.name + " is adding offline devices: ");
 
                 self.config.devices.forEach(function (device) {
 
@@ -249,7 +248,7 @@ Module.register("MMM-NetworkScanner", {
                  
                 // When last seen
                 if (self.config.showLastSeen && device.lastSeen) {
-                   deviceItem.innerHTML += " - last seen " + device.lastSeen.fromNow();
+                   deviceItem.innerHTML += "&nbsp;<small class=\"dimmed\">(" + device.lastSeen.fromNow() + ")</small>";
                 }
 
                 deviceList.appendChild(deviceItem);
@@ -282,23 +281,24 @@ Module.register("MMM-NetworkScanner", {
 
     getDeviceByMacAddress: function (macAddress) {
 
-        var self = this;
-
         // Find first device with matching macAddress
-        self.config.devices.forEach(function (device) {
+        for (var i = 0; i < this.config.devices.length; i++) {
+            var device = this.config.devices[i];
             if (device.hasOwnProperty("macAddress")) {
-                if (macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
-                    return device;
+                if (macAddress.toUpperCase() === device.macAddress.toUpperCase()){
+                    console.log(this.name + " has got device by MAC Address", device);
+                   return device;
                 }
             }
-        });
+        }
 
         // Return macAddress (if showing unknown) or null
-        if (self.config.showUnknown) {
+        if (this.config.showUnknown) {
             return {macAddress: macAddress};
+        } else {
+            return null;
         }
+
     },
 
 });
-
-
