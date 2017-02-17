@@ -11,30 +11,37 @@ const ping = require("ping");
 const sudo = require("sudo");
 
 module.exports = NodeHelper.create({
+    
     start: function function_name () {
-        console.log("Starting module: " + this.name);
+        this.log("Starting module: " + this.name);
     },
 
     // Override socketNotificationReceived method.
     socketNotificationReceived: function(notification, payload) {
-        console.log(this.name + " received " + notification);
+        this.log(this.name + " received " + notification);
+
+        if (notification === "CONFIG") {
+            this.config = payload;
+            return true;
+        }
 
         if (notification === "SCAN_NETWORK") {
-            this.devices = payload;
             this.scanNetworkMAC();
-            this.scanNetworkIP(payload);
+            this.scanNetworkIP();
             return true;
         }
 
     },
 
     scanNetworkMAC: function() {
-        console.log(this.name + " is scanning for mac addresses");
+        this.log(this.name + " is performing arp-scan");
 
         var self = this;
         var arp = sudo(['arp-scan', '-l', '-q']);
         var buffer = '';
         var errstream = '';
+        var discoveredMacAddresses = [];
+        var discoveredDevices = [];
 
         arp.stdout.on('data', function (data) {
             buffer += data;
@@ -50,46 +57,87 @@ module.exports = NodeHelper.create({
 
         arp.on('close', function (code) {
             if (code !== 0) {
-                console.log(self.name + " received an error running arp-scan: " + code + " - " + errstream);
+                this.log(self.name + " received an error running arp-scan: " + code + " - " + errstream);
                 return;
             }
-            //Parse the response
-            var rows = buffer.split('\n');
-            var macAddresses = [];
 
-            // ARP-SCAN table
+            // Parse the ARP-SCAN table response
+            var rows = buffer.split('\n');
             for (var i = 2; i < rows.length; i++) {
                 var cells = rows[i].split('\t').filter(String);
-                if (cells[1] && macAddresses.indexOf(cells[1].toUpperCase()) === -1) {
-                    macAddresses.push(cells[1].toUpperCase());
+
+                // Update device status
+                if (cells && cells[1]) {
+                    var macAddress = cells[1].toUpperCase()
+                    if (macAddress && discoveredMacAddresses.indexOf(macAddress) === -1) {
+                        discoveredMacAddresses.push(macAddress);
+                        device = self.findDeviceByMacAddress(macAddress);
+                        if (device) {
+                            device.online = true;
+                            discoveredDevices.push(device);
+                        }
+                    }
                 }
             }
 
-            self.sendSocketNotification("MAC_ADDRESSES", macAddresses);
+            self.log(self.name + " arp scan addresses: ", discoveredMacAddresses); 
+            self.log(self.name + " arp scan devices: ", discoveredDevices); 
+            self.sendSocketNotification("MAC_ADDRESSES", discoveredDevices);
         });
 
     },
 
-   scanNetworkIP: function(payload) {
-      var self = this;
-      console.log(this.name + " is scanning for ip addresses", payload);
+    scanNetworkIP: function() {
+        this.log(this.name + " is scanning for ip addresses", this.config.devices);
 
-      var devices = payload;
-      var deviceList = [];
-
-      function updateIPAddresses(devices) {
-         devices.forEach( function(device) {
+        var discoveredDevices = [];
+        var self = this;
+        this.config.devices.forEach( function(device) {
             if ("ipAddress" in device) {
-               ping.sys.probe(device.ipAddress, function(isAlive) {
-                  var deviceStatus = {name: device.name, online:isAlive};
-                  deviceList.push(deviceStatus);
-                  self.sendSocketNotification("IP_ADDRESS", deviceStatus);
-               });
+                self.log("pinging for ", device);
+                ping.sys.probe(device.ipAddress, function(isAlive) {
+                    device.online = isAlive;
+                    if (isAlive) {
+                        discoveredDevices.push(device);
+                    }
+                    self.sendSocketNotification("IP_ADDRESS", device);
+                });
             }
-         });
-      }
+        });
+        
+        this.log(self.name + " ping results: ", discoveredDevices); 
+           
+    },
 
-      updateIPAddresses(devices);
-      
-   },
+    findDeviceByMacAddress: function (macAddress) {
+        // Find first device with matching macAddress
+        for (var i = 0; i < this.config.devices.length; i++) {
+            var device = this.config.devices[i];
+            if (device.hasOwnProperty("macAddress")) {
+                if (macAddress.toUpperCase() === device.macAddress.toUpperCase()){
+                    this.log(this.name + " found device by MAC Address", device);
+                    return device;
+                }
+            }
+        }
+        // Return macAddress (if showing unknown) or null
+        if (this.config.showUnknown) {
+            return {macAddress: macAddress, name: macAddress, icon: "question", type: "Unknown"};
+        } else {
+            return null;
+        }
+    },
+
+    log: function(message, object) {
+        // Log if config is message or in debug mode
+        if (!this.config || this.config.debug) {
+            if (object) {
+                console.log(message, object);
+            } else {
+                console.log(message);
+            }
+        }
+    },
+
+
 });
