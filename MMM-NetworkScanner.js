@@ -18,36 +18,29 @@ Module.register("MMM-NetworkScanner", {
         showOffline: true,              // shows devices specified in the 'devices' option even when offline
         showLastSeen: false,            // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
-        updateInterval: 10,             // how often (in seconds) the module should scan the network
+        updateInterval: 20,             // how often (in seconds) the module should scan the network
          
         residents: [],
-        occupiedCMD: {notification: 'TEST', payload: {action: 'occupiedCMD'}},
-        vacantCMD:   {notification: 'TEST', payload: {action: 'vacantCMD'}},
+        occupiedCMD: null,              // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
+        vacantCMD: null,                // {notification: 'TEST', payload: {action: 'vacantCMD'}},
+
         debug: false,
     },
 
     // Subclass start method.
     start: function () {
-        var self = this;
         Log.info("Starting module: " + this.name);
-
-        if ( this.config.debug) {
-            console.log("Config settings for " + this.name);
-            console.log(this.config);
-        }
+        if (this.config.debug) Log.info(this.name + " config: ", this.config);
 
         // variable for if anyone is home
         this.occupied = true;
 
-        // variable for list of IP addresses
-        self.IPAddresses = [];
-        this.config.devices.forEach(function (device) {
-            if (device.hasOwnProperty("ipAddress")) {
-                self.IPAddresses.push(device);
-            }
-        });
-
         moment.locale(config.language);
+
+        this.validateDevices();
+
+        this.sendSocketNotification('CONFIG', this.config);
+
         this.scanNetwork();
     },
 
@@ -63,100 +56,68 @@ Module.register("MMM-NetworkScanner", {
 
     // Subclass socketNotificationReceived method.
     socketNotificationReceived: function (notification, payload) {
-        Log.info(this.name + " received a notification: " + notification);
+        if (this.config.debug) Log.info(this.name + " received a notification: " + notification, payload);
 
         var self = this;
 
         if (notification === 'IP_ADDRESS') {
-
-            this.config.devices.forEach(function (device) {
-                if (device.hasOwnProperty("ipAddress")) {
-                    if (payload.name === device.name) {
-                        device.online = payload.online;
-                        if (payload.online) {
-                           device.lastSeen = moment();
-                        }
-                        return;
-                    }
+            if (payload.hasOwnProperty("ipAddress")) {
+                // set last seen
+                if (payload.online) {
+                   payload.lastSeen = moment();
                 }
-            });
+                // Keep alive?
+                payload.online = (moment().diff(payload.lastSeen, 'seconds') < this.config.keepAlive);
+            }
         }
 
         if (notification === 'MAC_ADDRESSES') {
-            // No action if data is the same
-            if (JSON.stringify(this.networkDevices) === JSON.stringify(payload)) {
-                return;
+            if (this.config.debug) Log.info(this.name + " MAC_ADDRESSES payload: ", payload);
+
+            this.networkDevices = payload;
+
+            // Update device info
+            for (var i = 0; i < this.networkDevices.length; i++) {
+                var device = this.networkDevices[i];
+                // Set last seen
+                if (device.online) {
+                    device.lastSeen = moment();
+                }
+                // Keep alive?
+                device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
             }
 
+            // Add offline devices from config
+            if (this.config.showOffline) {
+                for (var d = 0; d < this.config.devices.length; d++) {
+                    var device = this.config.devices[d];
 
-            // Build device status list
-            self.networkDevices = [];
-
-            payload.forEach(function (item) {
-                var device = self.getDeviceByMacAddress(item);
-                if (device) {
-                    console.log(self.name + " is updating device status", device);
-                    device.online = true;
-                    device.lastSeen = moment();
-                    self.networkDevices.push(device);
-                }
-            });
-            console.log(self.name, self.networkDevices);
-
-            // Add offline known devices
-            if (self.config.showOffline) {
-                console.log(self.name + " is adding offline devices: ");
-
-                self.config.devices.forEach(function (device) {
-
-                    // Make sure we are using a device with a mac address
-                    if (device.hasOwnProperty("macAddress")) {
-                        self.networkDevices.forEach(function (networkDevice) {
-
-                            // Find if the device is a known device
-                            if (networkDevice.hasOwnProperty("macAddress")) {
-                                if (networkDevice.macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
-                                    if (device.lastSeen) {
-                                        device.online = (moment().diff(device.lastSeen, 'seconds') < self.config.keepAlive);
-                                        Log.info(self.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
-                                    } else {
-                                        device.online = false;
-                                    }
-                                }
-                            }
-                            
-                        });
-
-                    } else if (device.hasOwnProperty("ipAddress")) {
-                     // Keep the device alive incase of temporary loss
-
-                        if (!device.online) {
-                            console.log("device is not online");
-                            if (device.lastSeen) {
-                                device.online = (moment().diff(device.lastSeen, 'seconds') < self.config.keepAlive);
-                                Log.info(self.name + " is keeping alive " + device.name + ". Last seen " + device.lastSeen.fromNow());
-                            } else {
-                                device.online = false;
-                            }
+                    for(var n = 0; n < this.networkDevices.length; n++){
+                        if( device.macAddress && this.networkDevices[n].macAddress && this.networkDevices[n].macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
+                            n = -1;
+                            break;
                         }
                     }
-                    self.networkDevices.push(device);
-                });
+
+                    if (n != -1) {
+                        device.online = false;
+                        this.networkDevices.push(device);
+                    }
+                }
             }
 
             // Sort list by known device names, then unknown device mac addresses
             this.networkDevices.sort(function (a, b) {
                 var stringA, stringB;
-                stringA = (a.name ? "_" + a.name : a.macAddress);
-                stringB = (b.name ? "_" + b.name : b.macAddress);
+                stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
+                stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
 
                 return stringA.localeCompare(stringB);
             });
 
 
-
             // Send notification if user status has changed
-            if (self.config.residents.length > 0) {
+            if (this.config.residents.length > 0) {
                 var anyoneHome, command;
 //                self = this;
                 anyoneHome = 0;
@@ -167,24 +128,22 @@ Module.register("MMM-NetworkScanner", {
                     }
                 });
 
-                console.log("# people home: ", anyoneHome);
-                console.log("Was occupied? ", this.occupied);
-
-
+                if (this.config.debug) Log.info("# people home: ", anyoneHome);
+                if (this.config.debug) Log.info("Was occupied? ", this.occupied);
 
                 if (anyoneHome > 0) {
-                    if (self.occupied === false) {
-                        console.log("Someone has come home");
+                    if (this.occupied === false) {
+                        if (this.config.debug) Log.info("Someone has come home");
                         command = self.config.occupiedCMD;
-                        self.sendNotification(command.notification, command.payload);
-                        self.occupied = true;
+                        this.sendNotification(command.notification, command.payload);
+                        this.occupied = true;
                     }
                 } else {
-                    if (self.occupied === true) {
-                        console.log("Everyone has left home");
+                    if (this.occupied === true) {
+                        if (this.config.debug) Log.info("Everyone has left home");
                         command = self.config.vacantCMD;
-                        self.sendNotification(command.notification, command.payload);
-                        self.occupied = false;
+                        this.sendNotification(command.notification, command.payload);
+                        this.occupied = false;
                     }
                 }
             }
@@ -194,7 +153,6 @@ Module.register("MMM-NetworkScanner", {
 
         }
 
-
     },
 
     // Override dom generator.
@@ -203,7 +161,6 @@ Module.register("MMM-NetworkScanner", {
         wrapper = document.createElement("div");
 
         self = this;
-
 
         wrapper.classList.add("small");
 
@@ -216,22 +173,8 @@ Module.register("MMM-NetworkScanner", {
         // Display device status
         deviceList = document.createElement("ul");
         deviceList.classList.add("fa-ul");
-        self.networkDevices.forEach(function (device) {
+        this.networkDevices.forEach(function (device) {
             if (device) {
-
-                // Add device items if they don't exist.
-                if (!device.hasOwnProperty("icon")) {
-                    device.icon = "question";
-                }
-                if (!device.hasOwnProperty("name")) {
-                    if (device.hasOwnProperty("macAddress")) {
-                        device.name = device.macAddress;
-                    } else if (device.hasOwnProperty("ipAddress")) {
-                        device.name = device.ipAddress;
-                    } else {
-                        device.name = "Unknown";
-                    }
-                }
 
                 // device list item
                 deviceItem = document.createElement("li");
@@ -254,7 +197,7 @@ Module.register("MMM-NetworkScanner", {
                 deviceList.appendChild(deviceItem);
 
             } else {
-                Log.info("Online, but ignoring: '" + device + "'");
+                if (this.config.debug) Log.info(self.name + " Online, but ignoring: '" + device + "'");
             }
         });
         if (deviceList.hasChildNodes()) {
@@ -267,38 +210,33 @@ Module.register("MMM-NetworkScanner", {
         return wrapper;
     },
 
+    validateDevices: function () {
+        this.config.devices.forEach(function (device) {
+            // Add missing device attributes.
+            if (!device.hasOwnProperty("icon")) {
+                device.icon = "question";
+            }
+            if (!device.hasOwnProperty("name")) {
+                if (device.hasOwnProperty("macAddress")) {
+                    device.name = device.macAddress;
+                } else if (device.hasOwnProperty("ipAddress")) {
+                    device.name = device.ipAddress;
+                } else {
+                    device.name = "Unknown";
+                }
+            }
+        });
+    },
 
     scanNetwork: function () {
-        var devices, self;
-        self = this;
-        devices = this.config.devices;
-        this.sendSocketNotification('SCAN_NETWORK', devices);
+        if (this.config.debug) Log.info(this.name + " is initiating network scan");
+        var self = this;
+        this.sendSocketNotification('SCAN_NETWORK');
         setInterval(function () {
-            self.sendSocketNotification('SCAN_NETWORK', devices);
+            self.sendSocketNotification('SCAN_NETWORK');
         }, this.config.updateInterval * 1000);
         return;
     },
 
-    getDeviceByMacAddress: function (macAddress) {
-
-        // Find first device with matching macAddress
-        for (var i = 0; i < this.config.devices.length; i++) {
-            var device = this.config.devices[i];
-            if (device.hasOwnProperty("macAddress")) {
-                if (macAddress.toUpperCase() === device.macAddress.toUpperCase()){
-                    console.log(this.name + " has got device by MAC Address", device);
-                   return device;
-                }
-            }
-        }
-
-        // Return macAddress (if showing unknown) or null
-        if (this.config.showUnknown) {
-            return {macAddress: macAddress};
-        } else {
-            return null;
-        }
-
-    },
-
 });
+
