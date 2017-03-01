@@ -37,7 +37,11 @@ module.exports = NodeHelper.create({
         this.log(this.name + " is performing arp-scan");
 
         var self = this;
-        var arp = sudo(['arp-scan', '-l', '-q']);
+        if( self.config.network.length ){
+            var arp = sudo(['arp-scan', '-q', self.config.network]);
+        } else {
+            var arp = sudo(['arp-scan', '-l', '-q']);    
+        }        
         var buffer = '';
         var errstream = '';
         var discoveredMacAddresses = [];
@@ -93,9 +97,12 @@ module.exports = NodeHelper.create({
         var discoveredDevices = [];
         var self = this;
         this.config.devices.forEach( function(device) {
+            self.log("Checking Device...");
             if ("ipAddress" in device) {
                 self.log("pinging for ", device);
-                ping.sys.probe(device.ipAddress, function(isAlive) {
+                ping.sys.probe(device.ipAddress, function(isAlive,err) {
+                    self.log( isAlive );
+                    self.log( err );
                     device.online = isAlive;
                     if (isAlive) {
                         discoveredDevices.push(device);
