@@ -100,9 +100,7 @@ module.exports = NodeHelper.create({
             self.log("Checking Device...");
             if ("ipAddress" in device) {
                 self.log("pinging for ", device);
-                ping.sys.probe(device.ipAddress, function(isAlive,err) {
-                    self.log( isAlive );
-                    self.log( err );
+                ping.sys.probe(device.ipAddress, function(isAlive) {
                     device.online = isAlive;
                     if (isAlive) {
                         discoveredDevices.push(device);
