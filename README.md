@@ -70,7 +70,7 @@ Scan every 5 seconds and only display the specified devices whether they are onl
             showUnknown: false,
             showOffline: true,
             keepAlive: 300,
-            updateInterval: 5
+            updateInterval: 5,
             residents: "Mobile",
             occupiedCMD: {notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}},
             vacantCMD  : {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}},
