@@ -93,6 +93,10 @@ module.exports = NodeHelper.create({
     },
 
     scanNetworkIP: function() {
+        if (!this.config.devices) {
+            return;
+        }
+        
         this.log(this.name + " is scanning for ip addresses", this.config.devices);
 
         var discoveredDevices = [];
