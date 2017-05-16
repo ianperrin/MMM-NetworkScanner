@@ -37,8 +37,9 @@ module.exports = NodeHelper.create({
         this.log(this.name + " is performing arp-scan");
 
         var self = this;
-        if( self.config.network.length ){
-            var arp = sudo(['arp-scan', '-q', self.config.network]);
+        // Target hosts/network supplied in config or entire localnet
+        if (this.config.network) {
+            var arp = sudo(['arp-scan', '-q', this.config.network]);
         } else {
             var arp = sudo(['arp-scan', '-l', '-q']);    
         }        
@@ -134,7 +135,7 @@ module.exports = NodeHelper.create({
     },
 
     log: function(message, object) {
-        // Log if config is message or in debug mode
+        // Log if config is missing or in debug mode
         if (!this.config || this.config.debug) {
             if (object) {
                 console.log(message, object);
