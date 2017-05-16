@@ -1,4 +1,5 @@
 /* global require, module */
+/* jshint esversion: 6 */
 /* Magic Mirror
  * Node Helper: MMM-NetworkScanner
  *
@@ -38,11 +39,8 @@ module.exports = NodeHelper.create({
 
         var self = this;
         // Target hosts/network supplied in config or entire localnet
-        if (this.config.network) {
-            var arp = sudo(['arp-scan', '-q', this.config.network]);
-        } else {
-            var arp = sudo(['arp-scan', '-l', '-q']);    
-        }        
+        var arpHosts = (this.config.network || '-l');
+        var arp = sudo(['arp-scan', '-q', arpHosts]);
         var buffer = '';
         var errstream = '';
         var discoveredMacAddresses = [];
@@ -73,10 +71,10 @@ module.exports = NodeHelper.create({
 
                 // Update device status
                 if (cells && cells[1]) {
-                    var macAddress = cells[1].toUpperCase()
+                    var macAddress = cells[1].toUpperCase();
                     if (macAddress && discoveredMacAddresses.indexOf(macAddress) === -1) {
                         discoveredMacAddresses.push(macAddress);
-                        device = self.findDeviceByMacAddress(macAddress);
+                        var device = self.findDeviceByMacAddress(macAddress);
                         if (device) {
                             device.online = true;
                             discoveredDevices.push(device);
@@ -148,6 +146,5 @@ module.exports = NodeHelper.create({
             }
         }
     },
-
 
 });
