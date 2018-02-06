@@ -59,6 +59,10 @@ Module.register("MMM-NetworkScanner", {
         if (this.config.debug) Log.info(this.name + " received a notification: " + notification, payload);
 
         var self = this;
+        var getKeyedObject = (objects = [], key) => objects.reduce(
+          (acc, object) => (Object.assign(acc, { [object[key]]: object })),
+          {}
+        );
 
         if (notification === 'IP_ADDRESS') {
             if (payload.hasOwnProperty("ipAddress")) {
@@ -74,37 +78,34 @@ Module.register("MMM-NetworkScanner", {
         if (notification === 'MAC_ADDRESSES') {
             if (this.config.debug) Log.info(this.name + " MAC_ADDRESSES payload: ", payload);
 
-            this.networkDevices = payload;
+            var nextState = payload.map(device =>
+              Object.assign(device, { lastSeen: moment() })
+            );
 
-            // Update device info
-            for (var i = 0; i < this.networkDevices.length; i++) {
-                var device = this.networkDevices[i];
-                // Set last seen
-                if (device.online) {
-                    device.lastSeen = moment();
-                }
-                // Keep alive?
-                device.online = (moment().diff(device.lastSeen, 'seconds') < this.config.keepAlive);
-            }
-
-            // Add offline devices from config
             if (this.config.showOffline) {
-                for (var d = 0; d < this.config.devices.length; d++) {
-                    var device = this.config.devices[d];
+              var networkDevicesByMac = getKeyedObject(this.networkDevices, 'macAddress');
+              var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress')
 
-                    for(var n = 0; n < this.networkDevices.length; n++){
-                        if( device.macAddress && this.networkDevices[n].macAddress && this.networkDevices[n].macAddress.toUpperCase() === device.macAddress.toUpperCase()) {
-                            n = -1;
-                            break;
-                        }
-                    }
+              nextState = this.config.devices.map(device => {
+                var oldDeviceState = networkDevicesByMac[device.macAddress];
+                var payloadDeviceState = payloadDevicesByMac[device.macAddress];
+                var newDeviceState = payloadDeviceState
+                  ? payloadDeviceState
+                  : (oldDeviceState || device);
 
-                    if (n != -1) {
-                        device.online = false;
-                        this.networkDevices.push(device);
-                    }
-                }
+                var sinceLastSeen = newDeviceState.lastSeen
+                  ? moment().diff(newDeviceState.lastSeen, 'seconds')
+                  : null;
+
+                newDeviceState.online = (sinceLastSeen != null)
+                  ? (sinceLastSeen < this.config.keepAlive)
+                  : false;
+
+                return newDeviceState;
+              });
             }
+
+            this.networkDevices = nextState;
 
             // Sort list by known device names, then unknown device mac addresses
             this.networkDevices.sort(function (a, b) {
