@@ -83,6 +83,7 @@ Scan every 5 seconds and only display the specified devices whether they are onl
         }        
     },
 ````
+(Note that the 'MONITORON'/'MONITOROFF' actions require the MMM-Remote-Control module to be installed)
 
 ## Updating
 
