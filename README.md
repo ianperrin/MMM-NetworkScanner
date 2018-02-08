@@ -1,6 +1,10 @@
 # MMM-NetworkScanner
 A module for MagicMirror which determines the status of devices on the network based on their MAC address. It can also look up devices by IP addresses or hostnames. Static IP addresses work more consistently.
 
+## Example
+
+![](.github/example.png)
+
 ## Installation
 
 In your terminal, install `arp-scan`:
