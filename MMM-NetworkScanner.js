@@ -8,254 +8,255 @@
 
 //var Module, Log, moment, config, Log, moment, document;
 
-
 Module.register("MMM-NetworkScanner", {
 
-		 // Default module config.
-		defaults: {
-				devices: [],                    // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
-				showUnknown: true,              // shows devices found on the network even if not specified in the 'devices' option 
-				showOffline: true,              // shows devices specified in the 'devices' option even when offline
-				showLastSeen: false,            // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"
-				keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
-				updateInterval: 20,             // how often (in seconds) the module should scan the network
-				sort: true,                     // sort the devices in the mirror
-				 
-				residents: [],
-				occupiedCMD: null,              // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
-				vacantCMD: null,                // {notification: 'TEST', payload: {action: 'vacantCMD'}},
+    // Default module config.
+    defaults: {
+        devices: [], // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
+        showUnknown: true, // shows devices found on the network even if not specified in the 'devices' option 
+        showOffline: true, // shows devices specified in the 'devices' option even when offline
+        showLastSeen: false, // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"
+        keepAlive: 180, // how long (in seconds) a device should be considered 'alive' since it was last found on the network
+        updateInterval: 20, // how often (in seconds) the module should scan the network
+        sort: true, // sort the devices in the mirror
 
-				debug: false,
-		},
+        residents: [],
+        occupiedCMD: null, // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
+        vacantCMD: null, // {notification: 'TEST', payload: {action: 'vacantCMD'}},
 
-		// Subclass start method.
-		start: function () {
-				Log.info("Starting module: " + this.name);
-				if (this.config.debug) Log.info(this.name + " config: ", this.config);
+        debug: false,
+    },
 
-				// variable for if anyone is home
-				this.occupied = true;
+    // Subclass start method.
+    start: function() {
+        Log.info("Starting module: " + this.name);
+        if (this.config.debug) Log.info(this.name + " config: ", this.config);
 
-				moment.locale(config.language);
+        // variable for if anyone is home
+        this.occupied = true;
 
-				this.validateDevices();
+        moment.locale(config.language);
 
-				this.sendSocketNotification('CONFIG', this.config);
+        this.validateDevices();
 
-				this.scanNetwork();
-		},
+        this.sendSocketNotification('CONFIG', this.config);
 
-		// Subclass getStyles method.
-		getStyles: function () {
-				return ['font-awesome.css'];
-		},
+        this.scanNetwork();
+    },
 
-		// Subclass getScripts method.
-		getScripts: function () {
-				return ["moment.js"];
-		},
+    // Subclass getStyles method.
+    getStyles: function() {
+        return ['font-awesome.css'];
+    },
 
-		// Subclass socketNotificationReceived method.
-		socketNotificationReceived: function (notification, payload) {
-				if (this.config.debug) Log.info(this.name + " received a notification: " + notification, payload);
+    // Subclass getScripts method.
+    getScripts: function() {
+        return ["moment.js"];
+    },
 
-				var self = this;
-				var getKeyedObject = (objects = [], key) => objects.reduce(
-					(acc, object) => (Object.assign(acc, { [object[key]]: object })),
-					{}
-				);
+    // Subclass socketNotificationReceived method.
+    socketNotificationReceived: function(notification, payload) {
+        if (this.config.debug) Log.info(this.name + " received a notification: " + notification, payload);
 
-				if (notification === 'IP_ADDRESS') {
-						if (this.config.debug) Log.info(this.name + " IP_ADDRESS device: ", [payload.name, payload.online]);
-						
-						if (payload.hasOwnProperty("ipAddress")) {
-								var device = this.config.devices.find(d => d.ipAddress === payload.ipAddress);
-								
-								// Last Seen
-								if (payload.online) {
-									device.lastSeen = moment();
-								}
-								// Keep alive?
-								var sinceLastSeen = device.lastSeen
-									? moment().diff(device.lastSeen, 'seconds')
-									: null;
-								var isStale = (sinceLastSeen >= this.config.keepAlive);
-								device.online = (sinceLastSeen != null) && (!isStale);
+        var self = this;
+        var getKeyedObject = (objects = [], key) => objects.reduce(
+            (acc, object) => (Object.assign(acc, {
+                [object[key]]: object
+            })), {}
+        );
 
-								if (this.config.debug) Log.info(this.name + " IP_ADDRESS device: ", [device.name, device.lastSeen, device.online]);
-								
-						}
-				}
+        if (notification === 'IP_ADDRESS') {
+            if (this.config.debug) Log.info(this.name + " IP_ADDRESS device: ", [payload.name, payload.online]);
 
-				if (notification === 'MAC_ADDRESSES') {
-						if (this.config.debug) Log.info(this.name + " MAC_ADDRESSES payload: ", payload);
+            if (payload.hasOwnProperty("ipAddress")) {
+                var device = this.config.devices.find(d => d.ipAddress === payload.ipAddress);
 
-						var nextState = payload.map(device =>
-							Object.assign(device, { lastSeen: moment() })
-						);
+                // Last Seen
+                if (payload.online) {
+                    device.lastSeen = moment();
+                }
+                // Keep alive?
+                var sinceLastSeen = device.lastSeen ?
+                    moment().diff(device.lastSeen, 'seconds') :
+                    null;
+                var isStale = (sinceLastSeen >= this.config.keepAlive);
+                device.online = (sinceLastSeen != null) && (!isStale);
 
-						if (this.config.showOffline) {
-							var networkDevicesByMac = getKeyedObject(this.networkDevices, 'macAddress');
-							var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress');
+                if (this.config.debug) Log.info(this.name + " IP_ADDRESS device: ", [device.name, device.lastSeen, device.online]);
 
-							nextState = this.config.devices.map(device => {
-								if (device.macAddress) {
-									var oldDeviceState = networkDevicesByMac[device.macAddress];
-									var payloadDeviceState = payloadDevicesByMac[device.macAddress];
-									var newDeviceState = payloadDeviceState || oldDeviceState || device;
-	
-									var sinceLastSeen = newDeviceState.lastSeen
-										? moment().diff(newDeviceState.lastSeen, 'seconds')
-										: null;
-									var isStale = (sinceLastSeen >= this.config.keepAlive);
-	
-									newDeviceState.online = (sinceLastSeen != null) && (!isStale);
-	
-									return newDeviceState;
-								} else {
-									return device;
-								}
-							});
-						}
+            }
+        }
 
-						this.networkDevices = nextState;
+        if (notification === 'MAC_ADDRESSES') {
+            if (this.config.debug) Log.info(this.name + " MAC_ADDRESSES payload: ", payload);
 
-						// Sort list by known device names, then unknown device mac addresses
-						if (this.config.sort) {
-							this.networkDevices.sort(function (a, b) {
-									var stringA, stringB;
-									stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
-									stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
-	
-									return stringA.localeCompare(stringB);
-							});
-						}
+            var nextState = payload.map(device =>
+                Object.assign(device, {
+                    lastSeen: moment()
+                })
+            );
 
-						// Send notification if user status has changed
-						if (this.config.residents.length > 0) {
-								var anyoneHome, command;
-//                self = this;
-								anyoneHome = 0;
+            if (this.config.showOffline) {
+                var networkDevicesByMac = getKeyedObject(this.networkDevices, 'macAddress');
+                var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress');
 
-								this.networkDevices.forEach(function (device) {
-										if (self.config.residents.indexOf(device.name) >= 0) {
-												anyoneHome = anyoneHome + device.online;
-										}
-								});
+                nextState = this.config.devices.map(device => {
+                    if (device.macAddress) {
+                        var oldDeviceState = networkDevicesByMac[device.macAddress];
+                        var payloadDeviceState = payloadDevicesByMac[device.macAddress];
+                        var newDeviceState = payloadDeviceState || oldDeviceState || device;
 
-								if (this.config.debug) Log.info("# people home: ", anyoneHome);
-								if (this.config.debug) Log.info("Was occupied? ", this.occupied);
+                        var sinceLastSeen = newDeviceState.lastSeen ?
+                            moment().diff(newDeviceState.lastSeen, 'seconds') :
+                            null;
+                        var isStale = (sinceLastSeen >= this.config.keepAlive);
 
-								if (anyoneHome > 0) {
-										if (this.occupied === false) {
-												if (this.config.debug) Log.info("Someone has come home");
-												command = self.config.occupiedCMD;
-												this.sendNotification(command.notification, command.payload);
-												this.occupied = true;
-										}
-								} else {
-										if (this.occupied === true) {
-												if (this.config.debug) Log.info("Everyone has left home");
-												command = self.config.vacantCMD;
-												this.sendNotification(command.notification, command.payload);
-												this.occupied = false;
-										}
-								}
-						}
+                        newDeviceState.online = (sinceLastSeen != null) && (!isStale);
 
-						this.updateDom();
-						return;
+                        return newDeviceState;
+                    } else {
+                        return device;
+                    }
+                });
+            }
 
-				}
+            this.networkDevices = nextState;
 
-		},
+            // Sort list by known device names, then unknown device mac addresses
+            if (this.config.sort) {
+                this.networkDevices.sort(function(a, b) {
+                    var stringA, stringB;
+                    stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
+                    stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
 
-		// Override dom generator.
-		getDom: function () {
-				var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline, self;
-				wrapper = document.createElement("div");
+                    return stringA.localeCompare(stringB);
+                });
+            }
 
-//        self = this;
+            // Send notification if user status has changed
+            if (this.config.residents.length > 0) {
+                var anyoneHome, command;
+                //                self = this;
+                anyoneHome = 0;
 
-				wrapper.classList.add("small");
+                this.networkDevices.forEach(function(device) {
+                    if (self.config.residents.indexOf(device.name) >= 0) {
+                        anyoneHome = anyoneHome + device.online;
+                    }
+                });
 
-				// Display a loading message
-				if (!this.networkDevices) {
-						wrapper.innerHTML = this.translate("LOADING");
-						return wrapper;
-				}
+                if (this.config.debug) Log.info("# people home: ", anyoneHome);
+                if (this.config.debug) Log.info("Was occupied? ", this.occupied);
 
-				// Display device status
-				deviceList = document.createElement("ul");
-				deviceList.classList.add("fa-ul");
-				this.networkDevices.forEach(function (device) {
-						if (device) {
+                if (anyoneHome > 0) {
+                    if (this.occupied === false) {
+                        if (this.config.debug) Log.info("Someone has come home");
+                        command = self.config.occupiedCMD;
+                        this.sendNotification(command.notification, command.payload);
+                        this.occupied = true;
+                    }
+                } else {
+                    if (this.occupied === true) {
+                        if (this.config.debug) Log.info("Everyone has left home");
+                        command = self.config.vacantCMD;
+                        this.sendNotification(command.notification, command.payload);
+                        this.occupied = false;
+                    }
+                }
+            }
 
-								// device list item
-								deviceItem = document.createElement("li");
-								deviceOnline = (device.online ? "bright" : "dimmed");
-								deviceItem.classList.add(deviceOnline);
+            this.updateDom();
+            return;
 
-								// Icon
-								icon = document.createElement("i");
-								icon.classList.add("fa-li", "fa", "fa-" + device.icon);
-								deviceItem.appendChild(icon);
+        }
 
-								// Name 
-								deviceItem.innerHTML += device.name;
-								 
-								// When last seen
-								if (this.config.showLastSeen && device.lastSeen) {
-										dateSeen = document.createElement("small");
-										dateSeen.classList.add("dimmed");
-										dateSeen.innerHTML = device.lastSeen.fromNow();
-										deviceItem.appendChild(dateSeen);
-//                   deviceItem.innerHTML += "&nbsp;<small class=\"dimmed\">(" + device.lastSeen.fromNow() + ")</small>";
-								}
+    },
 
-								deviceList.appendChild(deviceItem);
+    // Override dom generator.
+    getDom: function() {
+        var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline, self;
+        wrapper = document.createElement("div");
 
-						} else {
-								if (this.config.debug) Log.info(self.name + " Online, but ignoring: '" + device + "'");
-						}
-				});
-				if (deviceList.hasChildNodes()) {
-						wrapper.appendChild(deviceList);
-				} else {
-						// Display no devices online message
-						wrapper.innerHTML = this.translate("NO DEVICES ONLINE");
-				}
+        //        self = this;
 
-				return wrapper;
-		},
+        wrapper.classList.add("small");
 
-		validateDevices: function () {
-				this.config.devices.forEach(function (device) {
-						// Add missing device attributes.
-						if (!device.hasOwnProperty("icon")) {
-								device.icon = "question";
-						}
-						if (!device.hasOwnProperty("name")) {
-								if (device.hasOwnProperty("macAddress")) {
-										device.name = device.macAddress;
-								} else if (device.hasOwnProperty("ipAddress")) {
-										device.name = device.ipAddress;
-								} else {
-										device.name = "Unknown";
-								}
-						}
-				});
-		},
+        // Display a loading message
+        if (!this.networkDevices) {
+            wrapper.innerHTML = this.translate("LOADING");
+            return wrapper;
+        }
 
-		scanNetwork: function () {
-				if (this.config.debug) Log.info(this.name + " is initiating network scan");
-				var self = this;
-				this.sendSocketNotification('SCAN_NETWORK');
-				setInterval(function () {
-						self.sendSocketNotification('SCAN_NETWORK');
-				}, this.config.updateInterval * 1000);
-				return;
-		},
+        // Display device status
+        deviceList = document.createElement("ul");
+        deviceList.classList.add("fa-ul");
+        this.networkDevices.forEach(function(device) {
+            if (device) {
+
+                // device list item
+                deviceItem = document.createElement("li");
+                deviceOnline = (device.online ? "bright" : "dimmed");
+                deviceItem.classList.add(deviceOnline);
+
+                // Icon
+                icon = document.createElement("i");
+                icon.classList.add("fa-li", "fa", "fa-" + device.icon);
+                deviceItem.appendChild(icon);
+
+                // Name 
+                deviceItem.innerHTML += device.name;
+
+                // When last seen
+                if (this.config.showLastSeen && device.lastSeen) {
+                    dateSeen = document.createElement("small");
+                    dateSeen.classList.add("dimmed");
+                    dateSeen.innerHTML = device.lastSeen.fromNow();
+                    deviceItem.appendChild(dateSeen);
+                    //                   deviceItem.innerHTML += "&nbsp;<small class=\"dimmed\">(" + device.lastSeen.fromNow() + ")</small>";
+                }
+
+                deviceList.appendChild(deviceItem);
+
+            } else {
+                if (this.config.debug) Log.info(self.name + " Online, but ignoring: '" + device + "'");
+            }
+        });
+        if (deviceList.hasChildNodes()) {
+            wrapper.appendChild(deviceList);
+        } else {
+            // Display no devices online message
+            wrapper.innerHTML = this.translate("NO DEVICES ONLINE");
+        }
+
+        return wrapper;
+    },
+
+    validateDevices: function() {
+        this.config.devices.forEach(function(device) {
+            // Add missing device attributes.
+            if (!device.hasOwnProperty("icon")) {
+                device.icon = "question";
+            }
+            if (!device.hasOwnProperty("name")) {
+                if (device.hasOwnProperty("macAddress")) {
+                    device.name = device.macAddress;
+                } else if (device.hasOwnProperty("ipAddress")) {
+                    device.name = device.ipAddress;
+                } else {
+                    device.name = "Unknown";
+                }
+            }
+        });
+    },
+
+    scanNetwork: function() {
+        if (this.config.debug) Log.info(this.name + " is initiating network scan");
+        var self = this;
+        this.sendSocketNotification('SCAN_NETWORK');
+        setInterval(function() {
+            self.sendSocketNotification('SCAN_NETWORK');
+        }, this.config.updateInterval * 1000);
+        return;
+    },
 
 });
-
