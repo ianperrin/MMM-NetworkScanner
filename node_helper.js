@@ -39,7 +39,7 @@ module.exports = NodeHelper.create({
 
         var self = this;
         // Target hosts/network supplied in config or entire localnet
-        var arpHosts = (this.config.network || '-l');
+        var arpHosts = this.config.network || '-l';
         var arp = sudo(['arp-scan', '-q', arpHosts]);
         var buffer = '';
         var errstream = '';
@@ -94,16 +94,17 @@ module.exports = NodeHelper.create({
             return;
         }
         
-        this.log(this.name + " is scanning for ip addresses", this.config.devices);
+        this.log(this.name + " is performing ip address scan");
 
         var discoveredDevices = [];
         var self = this;
         this.config.devices.forEach( function(device) {
-            self.log("Checking Device...");
+            self.log(self.name + " is checking device: ", device.name);
             if ("ipAddress" in device) {
-                self.log("pinging for ", device);
+                self.log(self.name + " is pinging ", device.ipAddress);
                 ping.sys.probe(device.ipAddress, function(isAlive) {
                     device.online = isAlive;
+                    self.log(self.name + " ping result: ", [device.name, device.online] );
                     if (isAlive) {
                         discoveredDevices.push(device);
                     }
