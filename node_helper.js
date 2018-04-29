@@ -60,7 +60,7 @@ module.exports = NodeHelper.create({
 
         arp.on('close', function (code) {
             if (code !== 0) {
-                this.log(self.name + " received an error running arp-scan: " + code + " - " + errstream);
+                self.log(self.name + " received an error running arp-scan: " + code + " - " + errstream);
                 return;
             }
 
