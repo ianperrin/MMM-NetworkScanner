@@ -112,9 +112,7 @@ module.exports = NodeHelper.create({
                 });
             }
         });
-        
-        this.log(self.name + " ping results: ", discoveredDevices); 
-           
+
     },
 
     findDeviceByMacAddress: function (macAddress) {
