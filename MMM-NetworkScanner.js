@@ -176,9 +176,6 @@ Module.register("MMM-NetworkScanner", {
     getDom: function() {
         var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline, self;
         wrapper = document.createElement("div");
-
-        //        self = this;
-
         wrapper.classList.add("small");
 
         // Display a loading message
@@ -212,7 +209,6 @@ Module.register("MMM-NetworkScanner", {
                     dateSeen.classList.add("dimmed");
                     dateSeen.innerHTML = device.lastSeen.fromNow();
                     deviceItem.appendChild(dateSeen);
-                    //                   deviceItem.innerHTML += "&nbsp;<small class=\"dimmed\">(" + device.lastSeen.fromNow() + ")</small>";
                 }
 
                 deviceList.appendChild(deviceItem);
