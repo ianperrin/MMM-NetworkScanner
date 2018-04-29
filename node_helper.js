@@ -61,31 +61,30 @@ module.exports = NodeHelper.create({
         arp.on('close', function (code) {
             if (code !== 0) {
                 self.log(self.name + " received an error running arp-scan: " + code + " - " + errstream);
-                return;
-            }
-
-            // Parse the ARP-SCAN table response
-            var rows = buffer.split('\n');
-            for (var i = 2; i < rows.length; i++) {
-                var cells = rows[i].split('\t').filter(String);
-
-                // Update device status
-                if (cells && cells[1]) {
-                    var macAddress = cells[1].toUpperCase();
-                    if (macAddress && discoveredMacAddresses.indexOf(macAddress) === -1) {
-                        discoveredMacAddresses.push(macAddress);
-                        var device = self.findDeviceByMacAddress(macAddress);
-                        if (device) {
-                            device.online = true;
-                            discoveredDevices.push(device);
+            } else {
+                // Parse the ARP-SCAN table response
+                var rows = buffer.split('\n');
+                for (var i = 2; i < rows.length; i++) {
+                    var cells = rows[i].split('\t').filter(String);
+    
+                    // Update device status
+                    if (cells && cells[1]) {
+                        var macAddress = cells[1].toUpperCase();
+                        if (macAddress && discoveredMacAddresses.indexOf(macAddress) === -1) {
+                            discoveredMacAddresses.push(macAddress);
+                            var device = self.findDeviceByMacAddress(macAddress);
+                            if (device) {
+                                device.online = true;
+                                discoveredDevices.push(device);
+                            }
                         }
                     }
                 }
             }
-
             self.log(self.name + " arp scan addresses: ", discoveredMacAddresses); 
             self.log(self.name + " arp scan devices: ", discoveredDevices); 
             self.sendSocketNotification("MAC_ADDRESSES", discoveredDevices);
+            return;
         });
 
     },
