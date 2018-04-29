@@ -53,7 +53,8 @@ Add the module to the modules array in the `config/config.js` file:
 | `showOffline` | true | shows devices specified in the `devices` option even when offline |
 | `showLastSeen` | false | shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago" |
 | `keepAlive` | 180 | how long (in seconds) a device should be considered 'alive' since it was last found on the network |
-| `updateInterval` | 10 | how often (in seconds) the module should scan the network  |
+| `updateInterval` | 10 | how often (in seconds) the module should scan the network |
+| `sort` | `true` | sorts the devices in alphabetical order when shown in the mirror |
 | `residents` | [] | names of devices that should be monitored if they are in |
 | `occupiedCMD` | `{notification: 'TEST', payload: {action: 'test-occupied'}}` | Notification to be sent when a resident returnes home e.g. `{notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}}` would turn the mirror on when a resedent returnes home. |
 | `vacantCMD` | `{notification: 'TEST', payload: {action: 'test-occupied'}}` | Notification to be sent when all residents have left home. |

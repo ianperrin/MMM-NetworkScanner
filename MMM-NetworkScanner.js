@@ -19,6 +19,7 @@ Module.register("MMM-NetworkScanner", {
         showLastSeen: false,            // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"
         keepAlive: 180,                 // how long (in seconds) a device should be considered 'alive' since it was last found on the network
         updateInterval: 20,             // how often (in seconds) the module should scan the network
+        sort: true,                     // sort the devices in the mirror
          
         residents: [],
         occupiedCMD: null,              // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
@@ -120,14 +121,15 @@ Module.register("MMM-NetworkScanner", {
             this.networkDevices = nextState;
 
             // Sort list by known device names, then unknown device mac addresses
-            this.networkDevices.sort(function (a, b) {
-                var stringA, stringB;
-                stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
-                stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
-
-                return stringA.localeCompare(stringB);
-            });
-
+            if (this.config.sort) {
+              this.networkDevices.sort(function (a, b) {
+                  var stringA, stringB;
+                  stringA = (a.type != "Unknown" ? "_" + a.name + a.macAddress : a.name);
+                  stringB = (b.type != "Unknown" ? "_" + b.name + b.macAddress : b.name);
+  
+                  return stringA.localeCompare(stringB);
+              });
+            }
 
             // Send notification if user status has changed
             if (this.config.residents.length > 0) {
