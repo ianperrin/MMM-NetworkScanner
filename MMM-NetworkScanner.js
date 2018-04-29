@@ -65,13 +65,24 @@ Module.register("MMM-NetworkScanner", {
         );
 
         if (notification === 'IP_ADDRESS') {
+            if (this.config.debug) Log.info(this.name + " IP_ADDRESS device: ", [payload.name, payload.online]);
+            
             if (payload.hasOwnProperty("ipAddress")) {
-                // set last seen
+                var device = this.config.devices.find(d => d.ipAddress === payload.ipAddress);
+                
+                // Last Seen
                 if (payload.online) {
-                   payload.lastSeen = moment();
+                  device.lastSeen = moment();
                 }
                 // Keep alive?
-                payload.online = (moment().diff(payload.lastSeen, 'seconds') < this.config.keepAlive);
+                var sinceLastSeen = device.lastSeen
+                  ? moment().diff(device.lastSeen, 'seconds')
+                  : null;
+                var isStale = (sinceLastSeen >= this.config.keepAlive);
+                device.online = (sinceLastSeen != null) && (!isStale);
+
+                if (this.config.debug) Log.info(this.name + " IP_ADDRESS device: ", [device.name, device.lastSeen, device.online]);
+                
             }
         }
 
@@ -87,18 +98,22 @@ Module.register("MMM-NetworkScanner", {
               var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress');
 
               nextState = this.config.devices.map(device => {
-                var oldDeviceState = networkDevicesByMac[device.macAddress];
-                var payloadDeviceState = payloadDevicesByMac[device.macAddress];
-                var newDeviceState = payloadDeviceState || oldDeviceState || device;
-
-                var sinceLastSeen = newDeviceState.lastSeen
-                  ? moment().diff(newDeviceState.lastSeen, 'seconds')
-                  : null;
-                var isStale = (sinceLastSeen >= this.config.keepAlive);
-
-                newDeviceState.online = (sinceLastSeen != null) && (!isStale);
-
-                return newDeviceState;
+                if (device.macAddress) {
+                  var oldDeviceState = networkDevicesByMac[device.macAddress];
+                  var payloadDeviceState = payloadDevicesByMac[device.macAddress];
+                  var newDeviceState = payloadDeviceState || oldDeviceState || device;
+  
+                  var sinceLastSeen = newDeviceState.lastSeen
+                    ? moment().diff(newDeviceState.lastSeen, 'seconds')
+                    : null;
+                  var isStale = (sinceLastSeen >= this.config.keepAlive);
+  
+                  newDeviceState.online = (sinceLastSeen != null) && (!isStale);
+  
+                  return newDeviceState;
+                } else {
+                  return device;
+                }
               });
             }
 
@@ -155,10 +170,10 @@ Module.register("MMM-NetworkScanner", {
 
     // Override dom generator.
     getDom: function () {
-        var wrapper, deviceList, icon, deviceItem, deviceOnline, self;
+        var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline, self;
         wrapper = document.createElement("div");
 
-        self = this;
+//        self = this;
 
         wrapper.classList.add("small");
 
@@ -180,7 +195,7 @@ Module.register("MMM-NetworkScanner", {
                 deviceItem.classList.add(deviceOnline);
 
                 // Icon
-                icon =  document.createElement("i");
+                icon = document.createElement("i");
                 icon.classList.add("fa-li", "fa", "fa-" + device.icon);
                 deviceItem.appendChild(icon);
 
@@ -188,8 +203,12 @@ Module.register("MMM-NetworkScanner", {
                 deviceItem.innerHTML += device.name;
                  
                 // When last seen
-                if (self.config.showLastSeen && device.lastSeen) {
-                   deviceItem.innerHTML += "&nbsp;<small class=\"dimmed\">(" + device.lastSeen.fromNow() + ")</small>";
+                if (this.config.showLastSeen && device.lastSeen) {
+                    dateSeen = document.createElement("small");
+                    dateSeen.classList.add("dimmed");
+                    dateSeen.innerHTML = device.lastSeen.fromNow();
+                    deviceItem.appendChild(dateSeen);
+//                   deviceItem.innerHTML += "&nbsp;<small class=\"dimmed\">(" + device.lastSeen.fromNow() + ")</small>";
                 }
 
                 deviceList.appendChild(deviceItem);

@@ -105,7 +105,7 @@ module.exports = NodeHelper.create({
                 ping.sys.probe(device.ipAddress, function(isAlive) {
                     device.online = isAlive;
                     self.log(self.name + " ping result: ", [device.name, device.online] );
-                    if (isAlive) {
+                    if (device.online) {
                         discoveredDevices.push(device);
                     }
                     self.sendSocketNotification("IP_ADDRESS", device);
