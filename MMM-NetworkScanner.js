@@ -13,6 +13,7 @@ Module.register("MMM-NetworkScanner", {
     // Default module config.
     defaults: {
         devices: [], // an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}
+        network: "-l", // a Local Network IP mask to limit the mac address scan, i.e. `192.168.0.0/24`. Use `-l` for the entire localnet
         showUnknown: true, // shows devices found on the network even if not specified in the 'devices' option 
         showOffline: true, // shows devices specified in the 'devices' option even when offline
         showLastSeen: false, // shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago"

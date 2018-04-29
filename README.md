@@ -47,17 +47,18 @@ Add the module to the modules array in the `config/config.js` file:
 ## Config Options
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
-| `devices` | [] | an array of device objects e.g. { macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"} |
-| `network` | "" | Local Network IP mask, i.e. "192.168.0.0/24" |
-| `showUnknown` | true | shows devices found on the network even if not specified in the `devices` option |
-| `showOffline` | true | shows devices specified in the `devices` option even when offline |
-| `showLastSeen` | false | shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago" |
-| `keepAlive` | 180 | how long (in seconds) a device should be considered 'alive' since it was last found on the network |
-| `updateInterval` | 10 | how often (in seconds) the module should scan the network |
-| `sort` | `true` | sorts the devices in alphabetical order when shown in the mirror |
-| `residents` | [] | names of devices that should be monitored if they are in |
-| `occupiedCMD` | `{notification: 'TEST', payload: {action: 'test-occupied'}}` | Notification to be sent when a resident returnes home e.g. `{notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}}` would turn the mirror on when a resedent returnes home. |
-| `vacantCMD` | `{notification: 'TEST', payload: {action: 'test-occupied'}}` | Notification to be sent when all residents have left home. |
+| `devices` | [] | an array of device objects e.g. `{ macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}` |
+| `network` | "-l" | `optional` a Local Network IP mask to limit the mac address scan, i.e. `192.168.0.0/24`. If not specified the entire localnet will be scanned. |
+| `showUnknown` | true | `optional` shows devices found on the network even if not specified in the `devices` option |
+| `showOffline` | true | `optional` shows devices specified in the `devices` option even when offline |
+| `showLastSeen` | false | `optional` shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago" |
+| `keepAlive` | 180 | `optional` how long (in seconds) a device should be considered 'alive' since it was last found on the network |
+| `updateInterval` | 20 | `optional` how often (in seconds) the module should scan the network |
+| `sort` | `true` | `optional` sorts the devices in alphabetical order when shown in the mirror |
+| `residents` | [] | `optional` an array of names of the devices that should be monitored if they are online |
+| `occupiedCMD` | `{}` | `optional` Notification to be sent when a resident returnes home e.g. `{notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}}` would turn the mirror on when a resedent returnes home. |
+| `vacantCMD` | `{}` | `optional` Notification to be sent when all residents have left home. |
+| `debug` | `false` | `optional` adds extended messages to the log. |
 
 ### Example Config
 Scan every 5 seconds and only display the specified devices whether they are online or offline. Devices will be considered online for 5 mins after they are last seen:
