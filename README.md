@@ -56,8 +56,8 @@ Add the module to the modules array in the `config/config.js` file:
 | `updateInterval` | 20 | `optional` how often (in seconds) the module should scan the network |
 | `sort` | `true` | `optional` sorts the devices in alphabetical order when shown in the mirror |
 | `residents` | [] | `optional` an array of names of the devices that should be monitored if they are online |
-| `occupiedCMD` | `{}` | `optional` Notification to be sent when a resident returnes home e.g. `{notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}}` would turn the mirror on when a resedent returnes home. |
-| `vacantCMD` | `{}` | `optional` Notification to be sent when all residents have left home. |
+| `occupiedCMD` | `{}` | `optional` the notification to be sent if one of the devices in the `residents` array is found online. See [Notification Example](#notification-example). |
+| `vacantCMD` | `{}` | `optional` the notification to be sent if **NONE** of the devices in the `residents` array is found online. See [Notification Example](#notification-example). |
 | `debug` | `false` | `optional` adds extended messages to the log. |
 
 #### Device Object
@@ -73,7 +73,50 @@ The device object contains information about the devices to be found on the netw
 **Note** A device object should only contain either a `macAddress` *or* an `ipAddress` **NOT** both.
 
 ### Example Config
-Scan every 5 seconds and only display the specified devices whether they are online or offline. Devices will be considered online for 5 mins after they are last seen:
+
+#### Simple example
+Scans the network (using the default `updateInterval`) and display the status of the four specified devices:
+````javascript
+    {
+        module: "MMM-NetworkScanner",
+        position: "top_left",
+        header: "Who's home",
+        config: {
+            devices: [
+                { macAddress: "1a:1b:1c:1a:1b:1c", name: "Dad", icon: "male"},
+                { macAddress: "2a:2b:2c:2a:2b:2c", name: "Mum", icon: "female"},
+                { macAddress: "3a:3b:3c:3a:3b:3c", name: "Son", icon: "male"},
+                { macAddress: "4a:4b:4c:4a:4b:4c", name: "Daughter", icon: "female"}
+            ],
+            showUnknown: false
+     }
+````
+#### Keep alive example
+Scan every 5 seconds and only display the specified devices whether they are online or offline. Devices will continue to be shown as online (i.e. kept alive) for 5 mins after they are last found:
+````javascript
+    {
+        module: 'MMM-NetworkScanner',
+        position: 'top_left', 
+        config: {
+            devices: [
+                    { ipAddress: "github.com", name: "Github", icon: "globe"},
+                    { macAddress: "1a:1b:1c:1a:1b:1c", name: "Server", icon: "server"},
+                    { macAddress: "2a:2b:2c:2a:2b:2c", name: "Desktop", icon: "desktop"},
+                    { ipAddress: "10.1.1.10", name: "Laptop", icon: "laptop"},
+                    { macAddress: "4a:4b:4c:4a:4b:4c", name: "Mobile", icon: "mobile"},
+                ],
+            showUnknown: false,
+            showOffline: true,
+            keepAlive: 300,
+            updateInterval: 5
+        }        
+    },
+````
+
+#### Notification example
+As with the previous example, this scans every 5 seconds and only display the specified devices whether they are online or offline. Devices will continue to be shown as online (i.e. kept alive) for 5 mins after they are last found on the network.
+
+In addition, the module will send a notification (`occupiedCMD`) to turn the monitor on when either `Mobile` or `Laptop` (the `residents`) are found on the network. Another notification (`vacantCMD`) will be sent when neither device is online:
 ````javascript
     {
         module: 'MMM-NetworkScanner',
@@ -90,14 +133,14 @@ Scan every 5 seconds and only display the specified devices whether they are onl
             showOffline: true,
             keepAlive: 300,
             updateInterval: 5,
-            residents: "Mobile",
+            residents: ["Mobile", "Laptop"],
             occupiedCMD: {notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}},
             vacantCMD  : {notification: 'REMOTE_ACTION', payload: {action: 'MONITOROFF'}},
 
         }        
     },
 ````
-(Note that the 'MONITORON'/'MONITOROFF' actions require the MMM-Remote-Control module to be installed)
+**NOTE** The `REMOTE_ACTION` notifications (`MONITORON` and `MONITOROFF`) actions require the [MMM-Remote-Control](https://github.com/Jopyth/MMM-Remote-Control) module to be installed.
 
 ## Updating
 
