@@ -47,7 +47,7 @@ Add the module to the modules array in the `config/config.js` file:
 ## Config Options
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
-| `devices` | [] | an array of device objects e.g. `{ macAddress: "aa:bb:cc:11:22:33", name: "DEVICE-NAME", icon: "FONT-AWESOME-ICON"}` |
+| `devices` | [] | an array of devices to be found on the network. See [Device object](#device-object) |
 | `network` | "-l" | `optional` a Local Network IP mask to limit the mac address scan, i.e. `192.168.0.0/24`. If not specified the entire localnet will be scanned. |
 | `showUnknown` | true | `optional` shows devices found on the network even if not specified in the `devices` option |
 | `showOffline` | true | `optional` shows devices specified in the `devices` option even when offline |
@@ -59,6 +59,18 @@ Add the module to the modules array in the `config/config.js` file:
 | `occupiedCMD` | `{}` | `optional` Notification to be sent when a resident returnes home e.g. `{notification: 'REMOTE_ACTION', payload: {action: 'MONITORON'}}` would turn the mirror on when a resedent returnes home. |
 | `vacantCMD` | `{}` | `optional` Notification to be sent when all residents have left home. |
 | `debug` | `false` | `optional` adds extended messages to the log. |
+
+#### Device Object
+The device object contains information about the devices to be found on the network.
+
+| **Key** | **Description** | **Example** |
+| --- | --- | --- |
+| `macAddress` | `optional` the MAC address of the device. | `aa:bb:cc:11:22:33` |
+| `ipAddress` | `optional` the IP address **or** host name of the device. | `192.168.0.1` or `github.com` |
+| `name` | `optional` the friendly name for the device. If omitted, the `macAddress` or `ipAddress` will be used. | `Phone` or `Router` |
+| `icon` | `optional` the symbol to show next to the device. See [Font Awesome](http://fontawesome.io/icons/) website. If omitted, `question` will be used. | There are a huge number of icons to choose from. Here are some examples: `globe`, `server`, `desktop`, `laptop`, `mobile`, `wifi`. |
+
+**Note** A device object should only contain either a `macAddress` *or* an `ipAddress` **NOT** both.
 
 ### Example Config
 Scan every 5 seconds and only display the specified devices whether they are online or offline. Devices will be considered online for 5 mins after they are last seen:
