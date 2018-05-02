@@ -161,7 +161,9 @@ Module.register("MMM-NetworkScanner", {
 
 	// Override dom generator.
 	getDom: function() {
-		var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline, self;
+		var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline;
+		var self = this;
+
 		wrapper = document.createElement("div");
 		wrapper.classList.add("small");
 
@@ -191,10 +193,10 @@ Module.register("MMM-NetworkScanner", {
 				deviceItem.innerHTML += device.name;
 
 				// When last seen
-				if (this.config.showLastSeen && device.lastSeen) {
+				if (self.config.showLastSeen && device.lastSeen) {
 					dateSeen = document.createElement("small");
 					dateSeen.classList.add("dimmed");
-					dateSeen.innerHTML = device.lastSeen.fromNow();
+					dateSeen.innerHTML = "&nbsp;" + device.lastSeen.fromNow();
 					deviceItem.appendChild(dateSeen);
 				}
 
