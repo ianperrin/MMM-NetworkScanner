@@ -48,7 +48,7 @@ Add the module to the modules array in the `config/config.js` file:
 | **Option** | **Default** | **Description** |
 | --- | --- | --- |
 | `devices` | [] | an array of devices to be found on the network. See [Device object](#device-object) |
-| `network` | "-l" | `optional` a Local Network IP mask to limit the mac address scan, i.e. `192.168.0.0/24`. If not specified the entire localnet will be scanned. |
+| `network` | `-l` | `optional` a network mask to limit the scope of the network scan, i.e. `192.168.0.0/24`. If omitted, or set to `-l`, the entire network will be scanned. |
 | `showUnknown` | true | `optional` shows devices found on the network even if not specified in the `devices` option |
 | `showOffline` | true | `optional` shows devices specified in the `devices` option even when offline |
 | `showLastSeen` | false | `optional` shows when the device was last seen e.g. "Device Name - last seen 5 minutes ago" |
