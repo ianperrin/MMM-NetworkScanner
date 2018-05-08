@@ -13,23 +13,22 @@ cd ~/
 sudo apt-get install arp-scan   
 ````
 
-In your terminal, go to your MagicMirror's Module folder:
+*Optionally*, update the vendor database used by `arp-scan`:
 ````
-cd ~/MagicMirror/modules
+cd /usr/share/arp-scan
+sudo get-iab -v -u http://standards.ieee.org/develop/regauth/iab/iab.txt
+sudo get-oui -v -u http://standards.ieee.org/develop/regauth/oui/oui.txt
 ````
 
-Clone this repository:
+Clone this repository into the MagicMirror Modules folder:
 ````
+cd ~/MagicMirror/modules
 git clone https://github.com/ianperrin/MMM-NetworkScanner.git
 ````
 
-Go to the modules folder:
+Install the dependencies (`sudo`, `ping`) in the MMM-NetworkScanner module folder:
 ````
-cd MMM-NetworkScanner
-````
-
-Install the dependencies (`sudo`, `ping`):
-````
+cd ~/MagicMirror/modules/MMM-NetworkScanner
 npm install
 ````
 
