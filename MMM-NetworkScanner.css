@@ -1,0 +1,13 @@
+.MMM-NetworkScanner .device {
+  text-align: left;
+}
+
+.MMM-NetworkScanner .device i {
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.MMM-NetworkScanner .date {
+  padding-left: 30px;
+  text-align: right;
+}

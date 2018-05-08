@@ -47,7 +47,7 @@ Module.register("MMM-NetworkScanner", {
 
 	// Subclass getStyles method.
 	getStyles: function() {
-		return ['font-awesome.css'];
+		return ['MMM-NetworkScanner.css', 'font-awesome.css'];
 	},
 
 	// Subclass getScripts method.
@@ -161,10 +161,9 @@ Module.register("MMM-NetworkScanner", {
 
 	// Override dom generator.
 	getDom: function() {
-		var wrapper, deviceList, icon, dateSeen, deviceItem, deviceOnline;
 		var self = this;
 
-		wrapper = document.createElement("div");
+		var wrapper = document.createElement("div");
 		wrapper.classList.add("small");
 
 		// Display a loading message
@@ -174,40 +173,41 @@ Module.register("MMM-NetworkScanner", {
 		}
 
 		// Display device status
-		deviceList = document.createElement("ul");
-		deviceList.classList.add("fa-ul");
+		var deviceTable = document.createElement("table");
+		deviceTable.classList.add("small");
 		this.networkDevices.forEach(function(device) {
 			if (device) {
 
-				// device list item
-				deviceItem = document.createElement("li");
-				deviceOnline = (device.online ? "bright" : "dimmed");
-				deviceItem.classList.add(deviceOnline);
+				// device row
+				var deviceRow = document.createElement("tr");
+				var deviceOnline = (device.online ? "bright" : "dimmed");
+				deviceRow.classList.add(deviceOnline);
 
 				// Icon
-				icon = document.createElement("i");
-				icon.classList.add("fa-li", "fa", "fa-" + device.icon);
-				deviceItem.appendChild(icon);
-
-				// Name 
-				deviceItem.innerHTML += device.name;
+				var deviceCell = document.createElement("td");
+				deviceCell.classList.add("device");
+				var icon = document.createElement("i");
+				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
+				deviceCell.appendChild(icon);
+				deviceCell.innerHTML += device.name;
+				deviceRow.appendChild(deviceCell);
 
 				// When last seen
 				if (self.config.showLastSeen && device.lastSeen) {
-					dateSeen = document.createElement("small");
-					dateSeen.classList.add("dimmed");
-					dateSeen.innerHTML = "&nbsp;" + device.lastSeen.fromNow();
-					deviceItem.appendChild(dateSeen);
+					var dateCell = document.createElement("td");
+					dateCell.classList.add("date", "dimmed", "light");
+					dateCell.innerHTML = device.lastSeen.fromNow();
+					deviceRow.appendChild(dateCell);
 				}
 
-				deviceList.appendChild(deviceItem);
+				deviceTable.appendChild(deviceRow);
 
 			} else {
 				if (this.config.debug) Log.info(self.name + " Online, but ignoring: '" + device + "'");
 			}
 		});
-		if (deviceList.hasChildNodes()) {
-			wrapper.appendChild(deviceList);
+		if (deviceTable.hasChildNodes()) {
+			wrapper.appendChild(deviceTable);
 		} else {
 			// Display no devices online message
 			wrapper.innerHTML = this.translate("NO DEVICES ONLINE");
