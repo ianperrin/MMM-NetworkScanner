@@ -1,6 +1,6 @@
 {
   "name": "MMM-NetworkScanner",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A module for MagicMirror which determines the status of devices on the network based on their MAC address",
   "main": "MMM-NetworkScanner.js",
   "scripts": {
