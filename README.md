@@ -67,7 +67,7 @@ The device object contains information about the devices to be found on the netw
 | `macAddress` | `optional` the MAC address of the device. | `aa:bb:cc:11:22:33` |
 | `ipAddress` | `optional` the IP address **or** host name of the device. | `192.168.0.1` or `github.com` |
 | `name` | `optional` the friendly name for the device. If omitted, the `macAddress` or `ipAddress` will be used. | `Phone` or `Router` |
-| `icon` | `optional` the symbol to show next to the device. See [Font Awesome](http://fontawesome.io/icons/) website. If omitted, `question` will be used. | There are a huge number of icons to choose from. Here are some examples: `globe`, `server`, `desktop`, `laptop`, `mobile`, `wifi`. |
+| `icon` | `optional` the symbol to show next to the device. See [Font Awesome](http://fontawesome.io/cheatsheet/) cheatsheet. If omitted, `question` will be used. | There are a huge number of icons to choose from. Here are some examples: `globe`, `server`, `desktop`, `laptop`, `mobile`, `wifi`. |
 
 **Note** A device object should only contain either a `macAddress` *or* an `ipAddress` **NOT** both.
 
