@@ -25,8 +25,8 @@ Module.register("MMM-NetworkScanner", {
 		occupiedCMD: null, // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
 		vacantCMD: null, // {notification: 'TEST', payload: {action: 'vacantCMD'}},
 
-		color: true;
-		coloredSymbolOnly: true;
+		colored: false,
+		coloredSymbolOnly: false,
 
 		debug: false,
 	},
@@ -187,12 +187,23 @@ Module.register("MMM-NetworkScanner", {
 				deviceRow.classList.add(deviceOnline);
 
 				// Icon
+
 				var deviceCell = document.createElement("td");
 				deviceCell.classList.add("device");
 				var icon = document.createElement("i");
 				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
+
+				if (self.config.colored) {
+					icon.style.cssText = "color: " + device.color;
+				}
+
+				if (self.config.colored && !self.config.coloredSymbolOnly && device.lastSeen) {
+					deviceCell.style.cssText = "color: " + device.color;
+				}
+
 				deviceCell.appendChild(icon);
 				deviceCell.innerHTML += device.name;
+
 				deviceRow.appendChild(deviceCell);
 
 				// When last seen
@@ -224,6 +235,9 @@ Module.register("MMM-NetworkScanner", {
 			// Add missing device attributes.
 			if (!device.hasOwnProperty("icon")) {
 				device.icon = "question";
+			}
+			if (!device.hasOwnProperty("color")) {
+				device.color = "#ffffff";
 			}
 			if (!device.hasOwnProperty("name")) {
 				if (device.hasOwnProperty("macAddress")) {
