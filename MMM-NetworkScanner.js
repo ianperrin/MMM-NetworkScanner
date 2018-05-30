@@ -25,6 +25,9 @@ Module.register("MMM-NetworkScanner", {
 		occupiedCMD: null, // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
 		vacantCMD: null, // {notification: 'TEST', payload: {action: 'vacantCMD'}},
 
+		color: true;
+		coloredSymbolOnly: true;
+
 		debug: false,
 	},
 
