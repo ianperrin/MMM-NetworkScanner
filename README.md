@@ -58,6 +58,11 @@ Add the module to the modules array in the `config/config.js` file:
 | `occupiedCMD` | `{}` | `optional` the notification to be sent if one of the devices in the `residents` array is found online. See [Notification Example](#notification-example). |
 | `vacantCMD` | `{}` | `optional` the notification to be sent if **NONE** of the devices in the `residents` array is found online. See [Notification Example](#notification-example). |
 | `debug` | `false` | `optional` adds extended messages to the log. |
+| `color` | `false` | `optional` shows devices in dedicated color defined in the devices section. |
+| `coloredSymbolOnly` | `false` | `optional` shows only the devices symbol. |
+| `showLastSeenWhenOffline:` | `false` | `optional` show last seen only when offline. |
+
+
 
 #### Device Object
 The device object contains information about the devices to be found on the network.
@@ -68,6 +73,7 @@ The device object contains information about the devices to be found on the netw
 | `ipAddress` | `optional` the IP address **or** host name of the device. | `192.168.0.1` or `github.com` |
 | `name` | `optional` the friendly name for the device. If omitted, the `macAddress` or `ipAddress` will be used. | `Phone` or `Router` |
 | `icon` | `optional` the symbol to show next to the device. See [Font Awesome](http://fontawesome.io/cheatsheet/) cheatsheet. If omitted, `question` will be used. | There are a huge number of icons to choose from. Here are some examples: `globe`, `server`, `desktop`, `laptop`, `mobile`, `wifi`. |
+| `color` | `optional` the color the device should be display with. |
 
 **Note** A device object should only contain either a `macAddress` *or* an `ipAddress` **NOT** both.
 
