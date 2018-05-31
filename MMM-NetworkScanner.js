@@ -27,7 +27,7 @@ Module.register("MMM-NetworkScanner", {
 
 		colored: false, // show devices colorcoded with color defined in devices [] //
 		coloredSymbolOnly: false, // show symbol only in color //
-		showLastSeenWhenOffline: true, // show last seen only when offline //
+		showLastSeenWhenOffline: false, // show last seen only when offline //
 
 		debug: false,
 	},
