@@ -25,8 +25,9 @@ Module.register("MMM-NetworkScanner", {
 		occupiedCMD: null, // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
 		vacantCMD: null, // {notification: 'TEST', payload: {action: 'vacantCMD'}},
 
-		colored: false,
-		coloredSymbolOnly: false,
+		colored: false, // show devices colorcoded with color defined in devices [] //
+		coloredSymbolOnly: false, // show symbol only in color //
+		showLastSeenWhenOffline: true, // show last seen only when offline //
 
 		debug: false,
 	},
@@ -207,7 +208,8 @@ Module.register("MMM-NetworkScanner", {
 				deviceRow.appendChild(deviceCell);
 
 				// When last seen
-				if (self.config.showLastSeen && device.lastSeen) {
+				if ((self.config.showLastSeen && device.lastSeen  && !self.config.showLastSeenWhenOffline) || 
+					(self.config.showLastSeen && !device.lastSeen &&  self.config.showLastSeenWhenOffline)) {
 					var dateCell = document.createElement("td");
 					dateCell.classList.add("date", "dimmed", "light");
 					dateCell.innerHTML = device.lastSeen.fromNow();
