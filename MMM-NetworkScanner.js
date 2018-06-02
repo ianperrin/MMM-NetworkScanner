@@ -180,9 +180,10 @@ Module.register("MMM-NetworkScanner", {
 		var deviceTable = document.createElement("table");
 		deviceTable.classList.add("small");
 		this.networkDevices.forEach(function(device) {
-			if (device) {
+			if (device && device.showOffline) {
 
 				// device row
+
 				var deviceRow = document.createElement("tr");
 				var deviceOnline = (device.online ? "bright" : "dimmed");
 				deviceRow.classList.add(deviceOnline);
@@ -212,7 +213,9 @@ Module.register("MMM-NetworkScanner", {
 					(self.config.showLastSeen && !device.lastSeen &&  self.config.showLastSeenWhenOffline)) {
 					var dateCell = document.createElement("td");
 					dateCell.classList.add("date", "dimmed", "light");
-					dateCell.innerHTML = device.lastSeen.fromNow();
+					if (typeof device.lastSeen !== 'undefined') {
+						dateCell.innerHTML = device.lastSeen.fromNow();
+					}
 					deviceRow.appendChild(dateCell);
 				}
 
@@ -240,6 +243,9 @@ Module.register("MMM-NetworkScanner", {
 			}
 			if (!device.hasOwnProperty("color")) {
 				device.color = "#ffffff";
+			}
+			if (!device.hasOwnProperty("showOffline")) {
+				device.showOffline = true;
 			}
 			if (!device.hasOwnProperty("name")) {
 				if (device.hasOwnProperty("macAddress")) {
