@@ -180,7 +180,7 @@ Module.register("MMM-NetworkScanner", {
 		var deviceTable = document.createElement("table");
 		deviceTable.classList.add("small");
 		this.networkDevices.forEach(function(device) {
-			if (device && device.showOffline) {
+			if (device && (device.online || device.showOffline)) {
 
 				// device row
 
