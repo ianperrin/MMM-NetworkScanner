@@ -3,7 +3,7 @@ node_js:
   - "6"
 before_install:
   - cd ../../ && git clone https://github.com/MichMich/MagicMirror
-  - mv ianperrin/MMM-ModuleScheduler MagicMirror/modules
+  - mv ianperrin/MMM-NetworkScanner MagicMirror/modules
   - cd MagicMirror && npm install express
   - cd modules/MMM-NetworkScanner
 before_script:
