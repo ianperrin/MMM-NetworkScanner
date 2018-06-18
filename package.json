@@ -4,7 +4,7 @@
   "description": "A module for MagicMirror which determines the status of devices on the network based on their MAC address",
   "main": "MMM-NetworkScanner.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",
@@ -24,5 +24,10 @@
   "dependencies": {
     "sudo": "^1.0.3",
     "ping": "^0.1.10"
+  }
+  "devDependencies": {
+      "grunt": "latest",
+      "grunt-contrib-jshint": "latest",
+      "grunt-contrib-nodeunit": "latest"
   }
 }
