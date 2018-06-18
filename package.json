@@ -24,7 +24,7 @@
   "dependencies": {
     "sudo": "^1.0.3",
     "ping": "^0.1.10"
-  }
+  },
   "devDependencies": {
       "grunt": "latest",
       "grunt-contrib-jshint": "latest",
