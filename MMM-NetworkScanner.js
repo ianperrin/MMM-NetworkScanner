@@ -25,6 +25,10 @@ Module.register("MMM-NetworkScanner", {
 		occupiedCMD: null, // {notification: 'TEST', payload: {action: 'occupiedCMD'}},
 		vacantCMD: null, // {notification: 'TEST', payload: {action: 'vacantCMD'}},
 
+		colored: false, // show devices colorcoded with color defined in devices [] //
+		coloredSymbolOnly: false, // show symbol only in color //
+		showLastSeenWhenOffline: false, // show last seen only when offline //
+
 		debug: false,
 	},
 
@@ -176,27 +180,42 @@ Module.register("MMM-NetworkScanner", {
 		var deviceTable = document.createElement("table");
 		deviceTable.classList.add("small");
 		this.networkDevices.forEach(function(device) {
-			if (device) {
+			if (device && (device.online || device.showOffline)) {
 
 				// device row
+
 				var deviceRow = document.createElement("tr");
 				var deviceOnline = (device.online ? "bright" : "dimmed");
 				deviceRow.classList.add(deviceOnline);
 
 				// Icon
+
 				var deviceCell = document.createElement("td");
 				deviceCell.classList.add("device");
 				var icon = document.createElement("i");
 				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
+
+				if (self.config.colored) {
+					icon.style.cssText = "color: " + device.color;
+				}
+
+				if (self.config.colored && !self.config.coloredSymbolOnly && device.lastSeen) {
+					deviceCell.style.cssText = "color: " + device.color;
+				}
+
 				deviceCell.appendChild(icon);
 				deviceCell.innerHTML += device.name;
+
 				deviceRow.appendChild(deviceCell);
 
 				// When last seen
-				if (self.config.showLastSeen && device.lastSeen) {
+				if ((self.config.showLastSeen && device.lastSeen  && !self.config.showLastSeenWhenOffline) || 
+					(self.config.showLastSeen && !device.lastSeen &&  self.config.showLastSeenWhenOffline)) {
 					var dateCell = document.createElement("td");
 					dateCell.classList.add("date", "dimmed", "light");
-					dateCell.innerHTML = device.lastSeen.fromNow();
+					if (typeof device.lastSeen !== 'undefined') {
+						dateCell.innerHTML = device.lastSeen.fromNow();
+					}
 					deviceRow.appendChild(dateCell);
 				}
 
@@ -221,6 +240,12 @@ Module.register("MMM-NetworkScanner", {
 			// Add missing device attributes.
 			if (!device.hasOwnProperty("icon")) {
 				device.icon = "question";
+			}
+			if (!device.hasOwnProperty("color")) {
+				device.color = "#ffffff";
+			}
+			if (!device.hasOwnProperty("showOffline")) {
+				device.showOffline = true;
 			}
 			if (!device.hasOwnProperty("name")) {
 				if (device.hasOwnProperty("macAddress")) {
