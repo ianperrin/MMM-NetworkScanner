@@ -16,8 +16,8 @@ sudo apt-get install arp-scan
 *Optionally*, update the vendor database used by `arp-scan`:
 ````bash
 cd /usr/share/arp-scan
-sudo get-iab -v -u http://standards.ieee.org/develop/regauth/iab/iab.txt
-sudo get-oui -v -u http://standards.ieee.org/develop/regauth/oui/oui.txt
+sudo get-iab -v -u http://standards-oui.ieee.org/iab/iab.txt
+sudo get-oui -v -u http://standards-oui.ieee.org/oui/oui.txt
 ````
 
 Clone this repository into the MagicMirror Modules folder:
