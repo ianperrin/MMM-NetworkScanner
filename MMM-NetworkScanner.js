@@ -91,22 +91,26 @@ Module.register("MMM-NetworkScanner", {
 				var networkDevicesByMac = getKeyedObject(this.networkDevices, 'macAddress');
 				var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress');
 
-				nextState = this.config.devices.map(device => {
-					if (device.macAddress) {
-						var oldDeviceState = networkDevicesByMac[device.macAddress];
-						var payloadDeviceState = payloadDevicesByMac[device.macAddress];
-						var newDeviceState = payloadDeviceState || oldDeviceState || device;
-
+				this.config.devices.forEach((d) => {
+					if(!nextState.find(v => v.macAddress === d.macAddress)){
+						nextState.push(d);
+					}
+				})
+				nextState = nextState.map(device => {
+					var definedDevice = this.config.devices.find(d => device.macAddress === d.macAddress)
+					if(!definedDevice){
+						return device;
+					}
+					if (definedDevice.macAddress) {
+						var oldDeviceState = networkDevicesByMac[definedDevice.macAddress];
+						var payloadDeviceState = payloadDevicesByMac[definedDevice.macAddress];
+						var newDeviceState = payloadDeviceState || oldDeviceState || definedDevice;
 						var sinceLastSeen = newDeviceState.lastSeen ?
 							moment().diff(newDeviceState.lastSeen, 'seconds') :
 							null;
 						var isStale = (sinceLastSeen >= this.config.keepAlive);
-
 						newDeviceState.online = (sinceLastSeen != null) && (!isStale);
-
 						return newDeviceState;
-					} else {
-						return device;
 					}
 				});
 			}
