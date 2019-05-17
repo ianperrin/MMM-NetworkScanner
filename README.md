@@ -58,7 +58,7 @@ Add the module to the modules array in the `config/config.js` file:
 | `occupiedCMD` | `{}` | `optional` the notification to be sent if one of the devices in the `residents` array is found online. See [Notification Example](#notification-example). |
 | `vacantCMD` | `{}` | `optional` the notification to be sent if **NONE** of the devices in the `residents` array is found online. See [Notification Example](#notification-example). |
 | `debug` | `false` | `optional` adds extended messages to the log. |
-| `color` | `false` | `optional` shows devices in dedicated color defined in the devices section. |
+| `colored` | `false` | `optional` determines whether devices are shown in the color defined in the devices section. |
 | `coloredSymbolOnly` | `false` | `optional` shows only the devices symbol. |
 | `showLastSeenWhenOffline:` | `false` | `optional` show last seen only when offline. |
 
