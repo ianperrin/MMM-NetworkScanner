@@ -142,15 +142,19 @@ Module.register("MMM-NetworkScanner", {
 				if (anyoneHome > 0) {
 					if (this.occupied === false) {
 						if (this.config.debug) Log.info("Someone has come home");
-						command = self.config.occupiedCMD;
-						this.sendNotification(command.notification, command.payload);
+						if (this.config.occupiedCMD) {
+							var occupiedCMD = self.config.occupiedCMD;
+							this.sendNotification(occupiedCMD.notification, occupiedCMD.payload);
+						}
 						this.occupied = true;
 					}
 				} else {
 					if (this.occupied === true) {
 						if (this.config.debug) Log.info("Everyone has left home");
-						command = self.config.vacantCMD;
-						this.sendNotification(command.notification, command.payload);
+						if (this.config.vacantCMD) {
+							var vacantCMD = this.config.vacantCMD;
+							this.sendNotification(vacantCMD.notification, vacantCMD.payload);
+						}
 						this.occupied = false;
 					}
 				}
