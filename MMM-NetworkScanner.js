@@ -88,10 +88,10 @@ Module.register("MMM-NetworkScanner", {
 			);
 
 			if (this.config.showOffline) {
-				var networkDevicesByMac = getKeyedObject(this.networkDevices, 'macAddress');
-				var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress');
-
-				nextState = this.config.devices.map(device => {
+				var networkDevicesByMac = getKeyedObject(this.networkDevices, 'macAddress'); 
+				var payloadDevicesByMac = getKeyedObject(nextState, 'macAddress'); 
+				
+				nextState = this.config.devices.map((device,index) => {
 					if (device.macAddress) {
 						var oldDeviceState = networkDevicesByMac[device.macAddress];
 						var payloadDeviceState = payloadDevicesByMac[device.macAddress];
@@ -103,12 +103,25 @@ Module.register("MMM-NetworkScanner", {
 						var isStale = (sinceLastSeen >= this.config.keepAlive);
 
 						newDeviceState.online = (sinceLastSeen != null) && (!isStale);
-
+						//here I remove the device if it goes offline (this could be decided by users through another config parameter
+						if (!newDeviceState.online && 'type' in newDeviceState && newDeviceState.type == 'Unknown') {							
+							this.config.devices.splice(index,index);
+						}
+							
 						return newDeviceState;
 					} else {
 						return device;
 					}
 				});
+				if (this.config.showUnknown) {     
+				// Integrate to this.config.devices every unknown device in payloadDevicesByMac, it makes sure the same device is not added twice.
+					for (device in payloadDevicesByMac) {
+						if ('type' in payloadDevicesByMac[device] && payloadDevicesByMac[device].type == 'Unknown') {	
+							let filtered = 	this.config.devices.filter((v,i,a)=> v.macAddress == payloadDevicesByMac[device].macAddress);	
+							if (filtered.length == 0) this.config.devices.push(payloadDevicesByMac[device]);
+						}
+					}
+				}
 			}
 
 			this.networkDevices = nextState;
