@@ -139,13 +139,15 @@ Module.register("MMM-NetworkScanner", {
 
 			// Send notification if user status has changed
 			if (this.config.residents.length > 0) {
-				var anyoneHome, command;
+				var anyoneHome, command, resident_found;
 				//                self = this;
 				anyoneHome = 0;
 
 				this.networkDevices.forEach(function(device) {
 					if (self.config.residents.indexOf(device.name) >= 0) {
 						anyoneHome = anyoneHome + device.online;
+						if (device.online)
+							resident_found = device;
 					}
 				});
 
@@ -157,6 +159,7 @@ Module.register("MMM-NetworkScanner", {
 						if (this.config.debug) Log.info("Someone has come home");
 						if (this.config.occupiedCMD) {
 							var occupiedCMD = self.config.occupiedCMD;
+							occupiedCMD.payload.resident_found = resident_found;
 							this.sendNotification(occupiedCMD.notification, occupiedCMD.payload);
 						}
 						this.occupied = true;
