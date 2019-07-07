@@ -7,7 +7,7 @@ devices as rows<br/>
 ![](.github/example.png)
 
 devices as columns<br/>
-![](.github/example-columns.jpg)
+![](.github/example-columns2.jpg)
 
 ## Installation
 
