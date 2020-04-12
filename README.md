@@ -82,6 +82,7 @@ The device object contains information about the devices to be found on the netw
 | `color` | `optional` the color the device should be display with. | `#ff0000`  for red |
 | `colorStateOnline` | `optional` the color the device should be display with when it is online. | `#ff0000`  for red |
 | `colorStateOffline` | `optional` the color the device should be display with when it is offline. | `#ff0000`  for red |
+| `showInNewRow` | `optional` add a line break if showDeviceColumns = true. | false  for no line break |
 
 **Note** A device object should only contain either a `macAddress` *or* an `ipAddress` **NOT** both.
 
@@ -147,6 +148,7 @@ Displays the specified devices as columns:
                     icon: "database", 
                     colorStateOnline: "green", 
                     colorStateOffline: "red",
+                    showInNewRow: true,
                 },
                 { 
                     ipAddress: "192.168.178.33", 
