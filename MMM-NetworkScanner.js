@@ -212,26 +212,12 @@ Module.register("MMM-NetworkScanner", {
 				var icon = document.createElement("i");
 				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
 
-
-				// sjj: coloredState - overwrites colored icon!
-				if (self.config.coloredState) {
-					if (device.online) {
-						icon.style.cssText = "color: " + device.colorStateOnline;
-					} else {
-						icon.style.cssText = "color: " + device.colorStateOffline;
-					};
-				} else 
 				if (self.config.colored) {
 					icon.style.cssText = "color: " + device.color;
 				}
 
 				if (self.config.colored && !self.config.coloredSymbolOnly && device.lastSeen) {
 					deviceCell.style.cssText = "color: " + device.color;
-				}
-
-				// sjj: coloredState - overwrites colored text if not coloredSymbolOnly!
-				if (self.config.coloredState && !self.config.coloredSymbolOnly && device.lastSeen) {
-					deviceCell.style.cssText = "color: " + (device.online ? device.colorStateOnline : device.colorStateOffline);
 				}
 
 				deviceCell.appendChild(icon);
@@ -250,6 +236,19 @@ Module.register("MMM-NetworkScanner", {
 					deviceRow.appendChild(dateCell);
 				}
 
+				// sjj: Append a new row if showDeviceColums and showInNewRow are both true
+
+				if (self.config.showDeviceColums && device.showInNewRow) {
+					// append the previously processed devices to the table
+					deviceTable.appendChild(headerRow);
+					deviceTable.appendChild(devStateRow);
+
+					//generate new line contents
+					headerRow = document.createElement("tr");
+					headerRow.classList.add("dimmed");
+					devStateRow = document.createElement("tr");
+					devStateRow.classList.add("dimmed");
+				}
 
 				// sjj: fill also header and devState row
 				// header row
@@ -329,6 +328,10 @@ Module.register("MMM-NetworkScanner", {
 			}
 			if (!device.hasOwnProperty("colorStateOffline")) {
 				device.colorStateOffline = "#ffffff";
+			}
+			// sjj show device in a new rox id mode is show in rows
+			if (!device.hasOwnProperty("showInNewRow")) {
+				device.showInNewRow = false;
 			}
 		});
 	},
