@@ -186,15 +186,15 @@ Module.register("MMM-NetworkScanner", {
 
 		// Display device status
 		var deviceTable = document.createElement("table");
-		deviceTable.classList.add("small");
+		deviceTable.classList.add("deviceTable", "small");
 		
 		// sjj: Show devices in columns
 		// generate header row and device state row
 		
 		var headerRow = document.createElement("tr");
-		headerRow.classList.add("dimmed");
+		headerRow.classList.add("headerRow", "dimmed");
 		var devStateRow = document.createElement("tr");
-		devStateRow.classList.add("dimmed");
+		devStateRow.classList.add("devStateRow", "dimmed");
 		
 		this.networkDevices.forEach(function(device) {
 			
@@ -203,12 +203,12 @@ Module.register("MMM-NetworkScanner", {
 				// device row
 				var deviceRow = document.createElement("tr");
 				var deviceOnline = (device.online ? "bright" : "dimmed");
-				deviceRow.classList.add(deviceOnline);
+				deviceRow.classList.add("deviceRow", deviceOnline);
 
 				// Icon
 
 				var deviceCell = document.createElement("td");
-				deviceCell.classList.add("device");
+				deviceCell.classList.add("deviceCell");
 				var icon = document.createElement("i");
 				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
 
@@ -229,7 +229,7 @@ Module.register("MMM-NetworkScanner", {
 				if ((self.config.showLastSeen && device.lastSeen  && !self.config.showLastSeenWhenOffline) || 
 					(self.config.showLastSeen && !device.lastSeen &&  self.config.showLastSeenWhenOffline)) {
 					var dateCell = document.createElement("td");
-					dateCell.classList.add("date", "dimmed", "light");
+					dateCell.classList.add("dateCell", "dimmed", "light");
 					if (typeof device.lastSeen !== 'undefined') {
 						dateCell.innerHTML = device.lastSeen.fromNow();
 					}
@@ -245,22 +245,22 @@ Module.register("MMM-NetworkScanner", {
 
 					//generate new line contents
 					headerRow = document.createElement("tr");
-					headerRow.classList.add("dimmed");
+					headerRow.classList.add("headerRow", "dimmed");
 					devStateRow = document.createElement("tr");
-					devStateRow.classList.add("dimmed");
+					devStateRow.classList.add("devStateRow", "dimmed");
 				}
 
 				// sjj: fill also header and devState row
 				// header row
 				var headerDevCell = document.createElement("td");
-				headerDevCell.classList.add("headerDev");
+				headerDevCell.classList.add("headerDevCell");
 				headerDevCell.innerHTML += device.name;
 
 				headerRow.appendChild(headerDevCell);
 				
 				// device state row
 				var devStateCell = document.createElement("td");
-				devStateCell.classList.add("devState");
+				devStateCell.classList.add("devStateCell");
 				
 				// color online / offline
 				if (self.config.coloredState) {
