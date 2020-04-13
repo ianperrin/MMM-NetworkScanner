@@ -9,6 +9,9 @@ devices as rows<br/>
 devices as columns<br/>
 ![](.github/example-columns2.jpg)
 
+devices as columns with newLines<br/>
+![](.github/exampleColumnsNewLines.jpg)
+
 ## Installation
 
 In your terminal, install `arp-scan`:
