@@ -30,6 +30,10 @@ Module.register("MMM-NetworkScanner", {
 		showLastSeenWhenOffline: false, // show last seen only when offline //
 
 		debug: false,
+		
+		// sjj: show table as device rows or as device columns
+		showDeviceColums: false,
+		coloredState: false,
 	},
 
 	// Subclass start method.
@@ -182,20 +186,29 @@ Module.register("MMM-NetworkScanner", {
 
 		// Display device status
 		var deviceTable = document.createElement("table");
-		deviceTable.classList.add("small");
+		deviceTable.classList.add("deviceTable", "small");
+		
+		// sjj: Show devices in columns
+		// generate header row and device state row
+		
+		var headerRow = document.createElement("tr");
+		headerRow.classList.add("headerRow", "dimmed");
+		var devStateRow = document.createElement("tr");
+		devStateRow.classList.add("devStateRow", "dimmed");
+		
 		this.networkDevices.forEach(function(device) {
+			
 			if (device && (device.online || device.showOffline)) {
 
 				// device row
-
 				var deviceRow = document.createElement("tr");
 				var deviceOnline = (device.online ? "bright" : "dimmed");
-				deviceRow.classList.add(deviceOnline);
+				deviceRow.classList.add("deviceRow", deviceOnline);
 
 				// Icon
 
 				var deviceCell = document.createElement("td");
-				deviceCell.classList.add("device");
+				deviceCell.classList.add("deviceCell");
 				var icon = document.createElement("i");
 				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
 
@@ -216,19 +229,68 @@ Module.register("MMM-NetworkScanner", {
 				if ((self.config.showLastSeen && device.lastSeen  && !self.config.showLastSeenWhenOffline) || 
 					(self.config.showLastSeen && !device.lastSeen &&  self.config.showLastSeenWhenOffline)) {
 					var dateCell = document.createElement("td");
-					dateCell.classList.add("date", "dimmed", "light");
+					dateCell.classList.add("dateCell", "dimmed", "light");
 					if (typeof device.lastSeen !== 'undefined') {
 						dateCell.innerHTML = device.lastSeen.fromNow();
 					}
 					deviceRow.appendChild(dateCell);
 				}
 
-				deviceTable.appendChild(deviceRow);
+				// sjj: Append a new row if showDeviceColums and showInNewRow are both true
+
+				if (self.config.showDeviceColums && device.showInNewRow) {
+					// append the previously processed devices to the table
+					deviceTable.appendChild(headerRow);
+					deviceTable.appendChild(devStateRow);
+
+					//generate new line contents
+					headerRow = document.createElement("tr");
+					headerRow.classList.add("headerRow", "dimmed");
+					devStateRow = document.createElement("tr");
+					devStateRow.classList.add("devStateRow", "dimmed");
+				}
+
+				// sjj: fill also header and devState row
+				// header row
+				var headerDevCell = document.createElement("td");
+				headerDevCell.classList.add("headerDevCell");
+				headerDevCell.innerHTML += device.name;
+
+				headerRow.appendChild(headerDevCell);
+				
+				// device state row
+				var devStateCell = document.createElement("td");
+				devStateCell.classList.add("devStateCell");
+				
+				// color online / offline
+				if (self.config.coloredState) {
+					if (device.online) {
+						icon.style.cssText = "color: " + device.colorStateOnline;
+					} else {
+						icon.style.cssText = "color: " + device.colorStateOffline;
+					};
+				}
+				
+				devStateCell.appendChild(icon);
+
+				devStateRow.appendChild(devStateCell);
+
+				// sjj: show as Device rows or as Device columns 
+				if (!self.config.showDeviceColums) {
+					deviceTable.appendChild(deviceRow);
+				}
 
 			} else {
 				if (this.config.debug) Log.info(self.name + " Online, but ignoring: '" + device + "'");
 			}
 		});
+		
+		// sjj: show as Device rows or as Device columns 
+		if (self.config.showDeviceColums) {
+			deviceTable.appendChild(headerRow);
+			deviceTable.appendChild(devStateRow);
+		}
+
 		if (deviceTable.hasChildNodes()) {
 			wrapper.appendChild(deviceTable);
 		} else {
@@ -259,6 +321,17 @@ Module.register("MMM-NetworkScanner", {
 				} else {
 					device.name = "Unknown";
 				}
+			}
+			// sjj: coloredState
+			if (!device.hasOwnProperty("colorStateOnline")) {
+				device.colorStateOnline = "#ffffff";
+			}
+			if (!device.hasOwnProperty("colorStateOffline")) {
+				device.colorStateOffline = "#ffffff";
+			}
+			// sjj show device in a new rox id mode is show in rows
+			if (!device.hasOwnProperty("showInNewRow")) {
+				device.showInNewRow = false;
 			}
 		});
 	},
