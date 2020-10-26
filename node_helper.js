@@ -117,10 +117,16 @@ module.exports = NodeHelper.create({
 
     findDeviceByMacAddress: function (macAddress) {
         // Find first device with matching macAddress
+        var mac1 = macAddress.toUpperCase.split(":");
         for (var i = 0; i < this.config.devices.length; i++) {
             var device = this.config.devices[i];
             if (device.hasOwnProperty("macAddress")) {
-                if (macAddress.toUpperCase() === device.macAddress.toUpperCase()){
+                var mac2 = device.macAddress.toUpperCase.split(":");
+                var equal = true;
+                for (var j = 0; j < mac1.length; j++) {
+                  equal = equal && ( mac1[j] === mac2[j] || mac2[j] === "*" )
+                } 
+                if (equal) {
                     this.log(this.name + " found device by MAC Address", device);
                     return device;
                 }
