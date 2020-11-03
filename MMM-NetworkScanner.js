@@ -197,7 +197,7 @@ Module.register("MMM-NetworkScanner", {
 				var deviceCell = document.createElement("td");
 				deviceCell.classList.add("device");
 				var icon = document.createElement("i");
-				icon.classList.add("fa", "fa-fw", "fa-" + device.icon);
+				icon.classList.add(device.iconPrefix || "fa", "fa-fw", "fa-" + device.icon);
 
 				if (self.config.colored) {
 					icon.style.cssText = "color: " + device.color;

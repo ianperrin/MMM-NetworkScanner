@@ -73,6 +73,7 @@ The device object contains information about the devices to be found on the netw
 | `ipAddress` | `optional` the IP address **or** host name of the device. | `192.168.0.1` or `github.com` |
 | `name` | `optional` the friendly name for the device. If omitted, the `macAddress` or `ipAddress` will be used. | `Phone` or `Router` |
 | `icon` | `optional` the symbol to show next to the device. See [Font Awesome](http://fontawesome.io/cheatsheet/) cheatsheet. If omitted, `question` will be used. | There are a huge number of icons to choose from. Here are some examples: `globe`, `server`, `desktop`, `laptop`, `mobile`, `wifi`. |
+| `iconPrefix` | `optional` the prefix related to the selected `icon` to show next to the device. See [Font Awesome v4 to v5 changes](https://fontawesome.com/how-to-use/on-the-web/setup/upgrading-from-version-4#changes). If omitted, `fa` will be used. | The free options to be used are: `fa` or `fas` (which are equivalent), and `fab` for branded icons. |
 | `color` | `optional` the color the device should be display with. | `#ff0000`  for red |
 
 **Note** A device object should only contain either a `macAddress` *or* an `ipAddress` **NOT** both.
